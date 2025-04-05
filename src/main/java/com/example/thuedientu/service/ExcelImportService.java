@@ -28,8 +28,8 @@ public class ExcelImportService {
         List<EnityExcel> dataList = new ArrayList<>();
 
         try(Workbook workbook = StreamingReader.builder()
-                .rowCacheSize(100)
-                .bufferSize(4096)
+                .rowCacheSize(500)
+                .bufferSize(16384)
                 .open(file.getInputStream())
 
                 ){
@@ -121,7 +121,8 @@ public class ExcelImportService {
             dataList.add(entity);
         }
 
-        excelRepository.saveAll(dataList); } // ✅ sử dụng instance
+        excelRepository.saveAll(dataList); }
+        // ✅ sử dụng instance
 //        workbook.close();
     }
 
@@ -129,23 +130,20 @@ public class ExcelImportService {
         Cell cell = row.getCell(index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
         if (cell == null) return "";
 
+
         switch (cell.getCellType()) {
             case STRING:
-                return cell.getStringCellValue().trim();
+                return cell.getStringCellValue();
             case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue().toString(); // Or format as needed
-                } else {
-                    return String.valueOf(cell.getNumericCellValue()).trim();
-                }
+                return DateUtil.isCellDateFormatted(cell)
+                        ? cell.getDateCellValue().toString()
+                        : new java.text.DecimalFormat("#.######").format(cell.getNumericCellValue()); // tránh số thập phân dư
             case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue()).trim();
+                return Boolean.toString(cell.getBooleanCellValue());
             case FORMULA:
-                return cell.getCellFormula().trim();
-            case BLANK:
-                return "";
+                return cell.getCellFormula();
             default:
-                return cell.toString().trim(); // fallback
+                return "";
         }
     }
 }
