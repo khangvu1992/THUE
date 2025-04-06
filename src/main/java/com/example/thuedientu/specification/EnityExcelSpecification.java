@@ -2,16 +2,19 @@ package com.example.thuedientu.specification;
 
 import com.example.thuedientu.model.EnityExcel;
 import org.springframework.data.jpa.domain.Specification;
-
 import jakarta.persistence.criteria.*;
 
 import java.util.Map;
+import java.util.HashMap;
 
 public class EnityExcelSpecification {
 
     public static Specification<EnityExcel> buildSpecification(Map<String, String> filters) {
         return (Root<EnityExcel> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
+
+            // Ensure filters is not null
+
 
             // Duyệt qua tất cả các bộ lọc và xây dựng các điều kiện
             for (Map.Entry<String, String> entry : filters.entrySet()) {
@@ -194,7 +197,6 @@ public class EnityExcelSpecification {
                                     criteriaBuilder.like(root.get("maDiadiemdohang"), "%" + value + "%")
                             );
                             break;
-                        // ... Các trường khác tiếp tục theo cách tương tự
                         default:
                             break;
                     }
