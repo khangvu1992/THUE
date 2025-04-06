@@ -37,6 +37,9 @@ public class ExcellmportService {
 
     public void importAsync(File file) {
         List<EnityExcel> dataList = new ArrayList<>();
+        System.out.println(file.length());
+        System.out.println("jjjjjjjjjjjjjjjjjj");
+
 
         try (InputStream is = new FileInputStream(file);
              Workbook workbook = StreamingReader.builder()
@@ -45,6 +48,8 @@ public class ExcellmportService {
                      .open(is)) {
 
             Sheet sheet = workbook.getSheetAt(0); // Đọc sheet đầu tiên
+            int totalRows = countRows(sheet); // Đếm tổng số dòng trong sheet
+
             Iterator<Row> rows = sheet.iterator();
 
             // Bỏ qua dòng tiêu đề
@@ -52,19 +57,30 @@ public class ExcellmportService {
                 rows.next(); // Bỏ qua dòng tiêu đề
             }
 
+            //theo doi tien do
+            int processed = 0;
+
+
             while (rows.hasNext()) {
                 Row row = rows.next();
                 EnityExcel entity = new EnityExcel();
 
                 // Ánh xạ dữ liệu từ các cột của row vào entity
                 mapRowToEntity(row, entity);
+                System.out.println(entity);
 
                 // Thêm entity vào danh sách
                 dataList.add(entity);
             }
+            System.out.println(dataList.size());
 
             // Lưu tất cả dữ liệu vào DB
             excelRepository.saveAll(dataList);
+            processed++;
+            if (processed % 4000 == 0) {
+                double progress = ((double) processed / totalRows) * 100;
+                System.out.println("Tiến độ: " + progress + "%");            }
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -146,6 +162,14 @@ public class ExcellmportService {
         Cell cell = row.getCell(index);
         if (cell == null) return "";
         return cell.getStringCellValue();
+    }
+
+    private int countRows(Sheet sheet) {
+        int count = 0;
+        for (Row row : sheet) {
+            count++;
+        }
+        return count;
     }
 }
 
