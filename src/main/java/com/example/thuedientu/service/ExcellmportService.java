@@ -1,7 +1,7 @@
 package com.example.thuedientu.service;
 
 import com.example.thuedientu.model.EnityExcel;
-import com.example.thuedientu.repository.ExcelRepository;
+import com.example.thuedientu.repository.EnityExcelRepository;
 import org.apache.poi.ss.usermodel.*;
 //import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +32,13 @@ public class ExcellmportService {
 
 
     @Autowired
-    private ExcelRepository excelRepository;
+    FileUploadService fileUploadService;
 
 
+    @Autowired
+    private EnityExcelRepository excelRepository;
+
+    @Async("taskExecutor")
     public void importAsync(File file) {
         List<EnityExcel> dataList = new ArrayList<>();
         int cout=0;
@@ -72,6 +76,7 @@ public class ExcellmportService {
 
             // Lưu tất cả dữ liệu vào DB
             excelRepository.saveAll(dataList);
+
 
         } catch (IOException e) {
             e.printStackTrace();

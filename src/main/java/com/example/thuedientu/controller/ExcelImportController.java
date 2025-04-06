@@ -33,7 +33,7 @@ public class ExcelImportController {
             }
 
             // Nếu không trùng lặp, lưu tên file vào cơ sở dữ liệu
-            fileUploadService.saveFile(file);
+
 
             try {
                 // Tạo file tạm để xử lý
@@ -42,7 +42,9 @@ public class ExcelImportController {
                 file.transferTo(tempFile);  // Chuyển dữ liệu từ MultipartFile vào temp file
 
                 // Gọi service để import dữ liệu từ file Excel
-                excelImportService.importAsync(tempFile);  // Now accessible here
+                excelImportService.importAsync(tempFile);
+                fileUploadService.saveFile(file);
+// Now accessible here
 
                 return ResponseEntity.ok("File Excel đã được nhập thành công.");
             } catch (IOException e) {
