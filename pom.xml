@@ -36,10 +36,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-security</artifactId>-->
-<!--		</dependency>-->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -52,10 +49,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.thymeleaf.extras</groupId>-->
-<!--			<artifactId>thymeleaf-extras-springsecurity6</artifactId>-->
-<!--		</dependency>-->
+
 
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
@@ -79,7 +73,6 @@
 
 
 
-
 		<!-- xlsx-streamer 2.2.0: nó phụ thuộc vào POI 3.17 -->
 		<dependency>
 			<groupId>com.monitorjbl</groupId>
@@ -88,30 +81,14 @@
 		</dependency>
 
 
-<!--		<dependency>-->
-<!--			<groupId>org.apache.poi</groupId>-->
-<!--			<artifactId>poi-ooxml</artifactId>-->
-<!--			<version>4.1.1</version>-->
-<!--		</dependency>-->
 
-		<!-- POI XML API -->
-
-
-		<!-- Streaming Reader -->
-
-			<dependency>
-				<groupId>com.monitorjbl</groupId>
-				<artifactId>xlsx-streamer</artifactId>
-				<version>2.1.0</version>
-			</dependency>
-
-
-		<!-- XML API (Thường thiếu khi gặp lỗi ClassNotFoundException) -->
 		<dependency>
 			<groupId>xml-apis</groupId>
 			<artifactId>xml-apis</artifactId>
 			<version>1.4.01</version>
 		</dependency>
+
+
 
 
 
