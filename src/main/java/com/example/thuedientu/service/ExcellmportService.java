@@ -37,6 +37,7 @@ public class ExcellmportService {
 
     public void importAsync(File file) {
         List<EnityExcel> dataList = new ArrayList<>();
+        int cout=0;
 
         try (InputStream is = new FileInputStream(file);
              Workbook workbook = StreamingReader.builder()
@@ -61,6 +62,12 @@ public class ExcellmportService {
 
                 // Thêm entity vào danh sách
                 dataList.add(entity);
+                cout++;
+
+                if (cout % 10000 == 0) {
+                    int progress = (cout / 10000);  // Every 10,000 iterations, you want the progress
+                    System.out.println("Progress: " + progress + "%");
+                }
             }
 
             // Lưu tất cả dữ liệu vào DB
@@ -70,6 +77,7 @@ public class ExcellmportService {
             e.printStackTrace();
         } finally {
             // Xoá file tạm sau khi xử lý xong
+            cout=0;
             file.delete();
         }
     }
