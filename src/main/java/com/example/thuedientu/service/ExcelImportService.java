@@ -26,6 +26,7 @@ public class ExcelImportService {
     @Autowired
     private ExcelRepository excelRepository;  // ✅ đây là biến
 
+    @Async // Phương thức này sẽ chạy bất đồng bộ
     public void importExcel(MultipartFile file) throws IOException {
         List<EnityExcel> dataList = new ArrayList<>();
         long rowCount=0;
