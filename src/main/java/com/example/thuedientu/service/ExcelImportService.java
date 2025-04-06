@@ -5,6 +5,8 @@ import com.example.thuedientu.repository.ExcelRepository;
 import org.apache.poi.ss.usermodel.*;
 //import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -26,6 +28,24 @@ public class ExcelImportService {
 
     public void importExcel(MultipartFile file) throws IOException {
         List<EnityExcel> dataList = new ArrayList<>();
+        long rowCount=0;
+
+        try (Workbook workbook = StreamingReader.builder()
+                .rowCacheSize(100)
+                .bufferSize(4096)
+                .open(file.getInputStream())) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+             rowCount = 0;
+            Iterator<Row> rows = sheet.iterator();
+
+            while (rows.hasNext()) {
+                rows.next();
+                rowCount++;
+            }
+
+
+        }
 
         try(Workbook workbook = StreamingReader.builder()
                 .rowCacheSize(500)
@@ -119,7 +139,14 @@ public class ExcelImportService {
 
 
             dataList.add(entity);
+
+            if (dataList.size() % 30000 == 0) {
+                int progress = (int) (((double) dataList.size() / rowCount) * 100);
+                System.out.println("Upload Progress: " + progress + "%");        }
+
         }
+
+
 
         excelRepository.saveAll(dataList); }
         // ✅ sử dụng instance
