@@ -29,24 +29,25 @@ public class ExcelImportService {
     @Async // Phương thức này sẽ chạy bất đồng bộ
     public void importExcel(MultipartFile file) throws IOException {
         List<EnityExcel> dataList = new ArrayList<>();
-        long rowCount=0;
-
-        try (Workbook workbook = StreamingReader.builder()
-                .rowCacheSize(100)
-                .bufferSize(4096)
-                .open(file.getInputStream())) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-             rowCount = 0;
-            Iterator<Row> rows = sheet.iterator();
-
-            while (rows.hasNext()) {
-                rows.next();
-                rowCount++;
-            }
-
-
-        }
+//        long rowCount=0;
+//
+//
+//        try (Workbook workbook = StreamingReader.builder()
+//                .rowCacheSize(100)
+//                .bufferSize(4096)
+//                .open(file.getInputStream())) {
+//
+//            Sheet sheet = workbook.getSheetAt(0);
+//             rowCount = 0;
+//            Iterator<Row> rows = sheet.iterator();
+//
+//            while (rows.hasNext()) {
+//                rows.next();
+//                rowCount++;
+//            }
+//
+//
+//        }
 
         try(Workbook workbook = StreamingReader.builder()
                 .rowCacheSize(500)
@@ -140,10 +141,10 @@ public class ExcelImportService {
 
 
             dataList.add(entity);
-
-            if (dataList.size() % 30000 == 0) {
-                int progress = (int) (((double) dataList.size() / rowCount) * 100);
-                System.out.println("Upload Progress: " + progress + "%");        }
+//
+//            if (dataList.size() % 30000 == 0) {
+//                int progress = (int) (((double) dataList.size() / rowCount) * 100);
+//                System.out.println("Upload Progress: " + progress + "%");        }
 
         }
 
@@ -151,7 +152,6 @@ public class ExcelImportService {
 
         excelRepository.saveAll(dataList); }
         // ✅ sử dụng instance
-//        workbook.close();
     }
 
     private String getString(Row row, int index) {
