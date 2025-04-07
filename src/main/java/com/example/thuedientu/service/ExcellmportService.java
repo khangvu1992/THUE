@@ -158,25 +158,4 @@ public class ExcellmportService {
     }
 }
 
-//
-//    private String getString(Row row, int index) {
-//        Cell cell = row.getCell(index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-//        if (cell == null) return "";
-//
-//
-//        switch (cell.getCellType()) {
-//            case STRING:
-//                return cell.getStringCellValue();
-//            case NUMERIC:
-//                return DateUtil.isCellDateFormatted(cell)
-//                        ? cell.getDateCellValue().toString()
-//                        : new java.text.DecimalFormat("#.######").format(cell.getNumericCellValue()); // tránh số thập phân dư
-//            case BOOLEAN:
-//                return Boolean.toString(cell.getBooleanCellValue());
-//            case FORMULA:
-//                return cell.getCellFormula();
-//            default:
-//                return "";
-//        }
-//    }
 
