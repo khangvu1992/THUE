@@ -28,9 +28,9 @@ public class ExcelImportController {
 
         try {
             // Kiểm tra xem file có trùng lặp hay không dựa trên hash
-            if (fileUploadService.checkForDuplicateByContent(file)) {
-                return ResponseEntity.badRequest().body("Duplicate file detected. Upload canceled.");  // Nếu trùng lặp, không tải lên
-            }
+//            if (fileUploadService.checkForDuplicateByContent(file)) {
+//                return ResponseEntity.badRequest().body("Duplicate file detected. Upload canceled.");  // Nếu trùng lặp, không tải lên
+//            }
 
             // Nếu không trùng lặp, lưu tên file vào cơ sở dữ liệu
             fileUploadService.saveFile(file);

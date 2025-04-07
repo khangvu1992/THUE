@@ -1,7 +1,8 @@
 package com.example.thuedientu.service;
 
 import com.example.thuedientu.model.EnityExcel;
-import com.example.thuedientu.repository.ExcelRepository;
+import com.example.thuedientu.repository.EnityExcelRepository;
+import com.example.thuedientu.repository.EnityExcelRepository;
 import org.apache.poi.ss.usermodel.*;
 //import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class ExcellmportService {
 
 
     @Autowired
-    private ExcelRepository excelRepository;
+    private EnityExcelRepository excelRepository;
 
 
     public void importAsync(File file) {
