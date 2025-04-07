@@ -45,7 +45,7 @@ public class ExcellSearchService {
                 if (value != null && !value.isBlank()) {
                     // Check if the field is a String
                     if (isStringField(root, key)) {
-                        predicates.add(cb.like(cb.lower(root.get(key)), "%" + value.toLowerCase() + "%"));
+                        predicates.add(cb.like(cb.lower(root.get(key)), value.toLowerCase() + "%"));
                     } else if (isLongField(root, key)) {
                         try {
                             Long longValue = Long.parseLong(value);

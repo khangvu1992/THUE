@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class mapEntityJDBC {
 
-    EnityExcel entity = new EnityExcel();
+    EnityExcelJDBC entity = new EnityExcelJDBC();
 
 
     public void mapRowToEntity(Row row, EnityExcelJDBC entity) {
