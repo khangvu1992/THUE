@@ -79,6 +79,7 @@ public class ExcellmportService {
 
 
         } catch (IOException e) {
+            file.delete();
             e.printStackTrace();
         } finally {
             // Xoá file tạm sau khi xử lý xong
