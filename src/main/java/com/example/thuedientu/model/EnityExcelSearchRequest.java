@@ -1,0 +1,71 @@
+package com.example.thuedientu.model;
+
+import lombok.Data;
+
+
+@Data
+public class EnityExcelSearchRequest {
+    private String Tkid;
+    private String Sotk;
+    private String Mahq;
+    private String trangthaitk;
+    private String bpkthsdt;
+    private String bptq;
+    private String ptvc;
+    private String malh;
+    private String ngayDk;
+    private String hourDk;
+    private String ngayThaydoiDk;
+    private String hourThaydoiDk;
+    private String masothueKbhq;
+    private String tenDoanhnghiep;
+    private String sodienthoai;
+    private String tenDoanhnghiepUythac;
+    private String tenDoitacnuocngoai;
+    private String maquocgiaDoitacnuocngoai;
+    private String vandon01;
+    private String vandon02;
+    private String vandon03;
+    private String vandon04;
+    private String vandon05;
+    private String soluongkienhang;
+    private String maDvtKienhang;
+    private String grossweight;
+    private String maDvtGw;
+    private String soluongContainer;
+    private String maDiadiemdohang;
+    private String maDiadiemxephang;
+    private String tenPhuongtienvanchuyen;
+    private String ngayHangDen;
+    private String phuongThucThanhToan;
+    private String tongTriGiaHoaDon;
+    private String tongTriGiaTinhThue;
+    private String tongTienThue;
+    private String tongSoDonghang;
+    private String ngayCapPhep;
+    private String gioCapPhep;
+    private String ngayHoanthanhKiemtra;
+    private String gioHoanthanhKiemtra;
+    private String ngayHuyTk;
+    private String gioHuyTk;
+    private String tenNguoiphutrachKiemtrahoso;
+    private String tenNguoiphutrachKiemhoa;
+    private String hsCode;
+    private String moTaHangHoa;
+    private String soLuongHanghoa;
+    private String maDvtHanghoa;
+    private String triGiaHoaDon;
+    private String dongiaHoadon;
+    private String maTienteHoadon;
+    private String donviDongiaTiente;
+    private String triGiaTinhThueS;
+    private String triGiaTinhThueM;
+    private String dongiaTinhthue;
+    private String thuesuatNhapkhau;
+    private String tienThueNhapkhau;
+    private String xuatxu;
+    private String maVanbanphapquy;
+    private String phanloaiGiayphepNk;
+    private String maBieuthueNk;
+    private String maMiengiamThue;
+}
