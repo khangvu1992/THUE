@@ -28,11 +28,12 @@ public class ExcelImportController {
 
         try {
             // Kiểm tra xem file có trùng lặp hay không dựa trên hash
-//            if (fileUploadService.checkForDuplicateByContent(file)) {
-//                return ResponseEntity.badRequest().body("Duplicate file detected. Upload canceled.");  // Nếu trùng lặp, không tải lên
-//            }
+            if (fileUploadService.checkForDuplicateByContent(file)) {
+                return ResponseEntity.badRequest().body("Duplicate file detected. Upload canceled.");  // Nếu trùng lặp, không tải lên
+            }
 
             // Nếu không trùng lặp, lưu tên file vào cơ sở dữ liệu
+            fileUploadService.saveFile(file);
 
 
             try {
@@ -43,7 +44,7 @@ public class ExcelImportController {
 
                 // Gọi service để import dữ liệu từ file Excel
                 excelImportService.importAsync(tempFile);
-                fileUploadService.saveFile(file);
+//                fileUploadService.saveFile(file);
 // Now accessible here
 
                 return ResponseEntity.ok("File Excel đã được nhập thành công.");
