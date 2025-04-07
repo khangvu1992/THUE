@@ -35,7 +35,7 @@ public class ExcellmportService {
     @Autowired
     private EnityExcelRepository excelRepository;
 
-
+    @Async
     public void importAsync(File file) {
         List<EnityExcel> dataList = new ArrayList<>();
         int cout=0;

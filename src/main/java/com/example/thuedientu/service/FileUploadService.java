@@ -35,7 +35,7 @@ public class FileUploadService {
     public boolean checkForDuplicateByContent(MultipartFile file) throws Exception {
         String fileHash = generateFileHash(file);  // Generate hash for the file
 
-        // First check in-memory cache
+//         First check in-memory cache
         if (uploadedFileHashes.contains(fileHash)) {
             return true;  // File is duplicate (in-memory check)
         }
@@ -52,7 +52,7 @@ public class FileUploadService {
     }
 
     // Method to generate hash for the file using SHA-256
-    private String generateFileHash(MultipartFile file) throws Exception {
+    public String generateFileHash(MultipartFile file) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         try (InputStream inputStream = file.getInputStream()) {
             byte[] byteArray = new byte[1024];
@@ -75,6 +75,9 @@ public class FileUploadService {
             HashFile hashFile = new HashFile();
             hashFile.setFilename(file.getOriginalFilename());
             hashFile.setFileHash(generateFileHash(file));  // Set the hash
+
+            System.out.println("den day la luu");
+
             fileRepository.save(hashFile);  // Save the file record in the database
         } else {
             // Handle duplicate file (e.g., notify the user or skip saving)
