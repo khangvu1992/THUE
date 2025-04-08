@@ -233,6 +233,8 @@ public class DatabaseService {
 
                 if (count % 10000 == 0) {
                     fileQueueManager.logWaitingFiles();
+                    progressWebSocketSender.sendProgress1("fileId, ctx.getFileName(), ctx.getProcessedCount(), ctx.getQueue().size(), ctx.isReadingDone(), ctx.getErrorMessage()");
+
 
 //                    System.out.println("Progress: " + count);
                 }
