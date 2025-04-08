@@ -3,6 +3,7 @@ package com.example.thuedientu.service;
 import com.example.thuedientu.model.EnityExcelJDBC;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.repository.FileRepository;
+import com.example.thuedientu.util.FileQueueManager;
 import com.example.thuedientu.util.mapEntityJDBC;
 import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.poi.ss.usermodel.*;
@@ -29,20 +30,13 @@ import java.util.concurrent.TimeUnit;
 public class DatabaseService {
 
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private insertDataBatchService insertDataBatchService1;
-
-    @Autowired
-    private FileRepository fileRepository;
-
-    @Autowired
-    private mapEntityJDBC map1EntityJDBC;
-
     private final int BATCH_SIZE = 20000;
     private final int WORKER_COUNT = 16;
-    private final BlockingQueue<List<EnityExcelJDBC>> queue = new ArrayBlockingQueue<>(50);
-    private volatile boolean readingDone = false;
+
+    @Autowired private insertDataBatchService insertDataBatchService1;
+    @Autowired private FileRepository fileRepository;
+    @Autowired private mapEntityJDBC map1EntityJDBC;
+    @Autowired private FileQueueManager fileQueueManager;
 
     public DatabaseService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -50,79 +44,47 @@ public class DatabaseService {
 
     @Async
     public void import1Datbase1JDBC1(File file, HashFile hashFile) {
+        String fileId = hashFile.getFileHash();
+        String filename = hashFile.getFilename();
+
         createTable();
+        fileQueueManager.createContext(fileId, 50, filename);
 
         for (int i = 0; i < WORKER_COUNT; i++) {
-            new Thread(() -> workerWriteToDb(), "worker-" + i).start();
+            new Thread(() -> workerWriteToDb(fileId), "worker-" + i + "-" + fileId).start();
         }
 
-        readExcelAndEnqueue(file);
+        readExcelAndEnqueue(file, fileId);
 
-        readingDone = true;
+        fileQueueManager.markReadingDone(fileId);
 
         file.delete();
         fileRepository.save(hashFile);
         System.out.println("🧹 Xoá file tạm: " + file.getAbsolutePath());
     }
 
-    private void readExcelAndEnqueue(File file) {
-        try (InputStream is = new FileInputStream(file);
-             Workbook workbook = StreamingReader.builder()
-                     .rowCacheSize(100)
-                     .bufferSize(4096)
-                     .open(is)) {
+    private void workerWriteToDb(String fileId) {
+        BlockingQueue<List<EnityExcelJDBC>> queue = fileQueueManager.getQueue(fileId);
 
-            Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rows = sheet.iterator();
-            if (rows.hasNext()) rows.next(); // skip header
-
-            List<EnityExcelJDBC> batch = new ArrayList<>();
-            int count = 0;
-
-            while (rows.hasNext()) {
-                Row row = rows.next();
-                EnityExcelJDBC entity = new EnityExcelJDBC();
-                map1EntityJDBC.mapRowToEntity(row, entity);
-                batch.add(entity);
-                count++;
-
-                if (batch.size() >= BATCH_SIZE) {
-                    queue.put(new ArrayList<>(batch));
-                    batch.clear();
-                }
-
-                if (count % 10000 == 0) {
-                    System.out.println("Progress: " + count);
-                }
-            }
-
-            if (!batch.isEmpty()) {
-                queue.put(batch);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void workerWriteToDb() {
         while (true) {
             try {
                 List<EnityExcelJDBC> batch = queue.poll(3, TimeUnit.SECONDS);
                 if (batch == null) {
-                    if (readingDone && queue.isEmpty()) break;
+                    if (fileQueueManager.isReadingDone(fileId)) break;
                     else continue;
                 }
 
                 insertDataBatchService1.insertDataBatch(batch);
+                fileQueueManager.incrementProcessed(fileId, batch.size());
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        System.out.println(Thread.currentThread().getName() + " done!");
-    }
 
+        System.out.println(Thread.currentThread().getName() + " done!");
+        fileQueueManager.removeContext(fileId);
+    }
 
     public void createTable() {
         String createTableSQL = "IF OBJECT_ID('dbo.khang_heheJDBC', 'U') IS NULL " +
@@ -232,4 +194,47 @@ public class DatabaseService {
             ps.setString(63, e.getTrangthaitk());
         });
     }
+
+    private void readExcelAndEnqueue(File file, String fileId) {
+        try (InputStream is = new FileInputStream(file);
+             Workbook workbook = StreamingReader.builder()
+                     .rowCacheSize(100)
+                     .bufferSize(4096)
+                     .open(is)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rows = sheet.iterator();
+            if (rows.hasNext()) rows.next(); // skip header
+
+            List<EnityExcelJDBC> batch = new ArrayList<>();
+            int count = 0;
+
+            while (rows.hasNext()) {
+                Row row = rows.next();
+                EnityExcelJDBC entity = new EnityExcelJDBC();
+                map1EntityJDBC.mapRowToEntity(row, entity);
+                batch.add(entity);
+                count++;
+
+                if (batch.size() >= BATCH_SIZE) {
+                    fileQueueManager.getQueue(fileId).put(new ArrayList<>(batch));
+                    batch.clear();
+                }
+
+                if (count % 10000 == 0) {
+                    fileQueueManager.logProgress();
+
+//                    System.out.println("Progress: " + count);
+                }
+            }
+
+            if (!batch.isEmpty()) {
+                fileQueueManager.getQueue(fileId).put(batch);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
