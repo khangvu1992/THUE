@@ -1,6 +1,8 @@
 package com.example.thuedientu.util;
 
 import com.example.thuedientu.model.EnityExcelJDBC;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +13,19 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 public class FileQueueManager {
+
+    private final AtomicInteger processedCount = new AtomicInteger();
+    private volatile boolean readingDone = false;
+    @Setter
+    @Getter
+    private volatile String errorMessage = null; // ❗ lỗi xảy ra trong import
+    private final ConcurrentLinkedQueue<String> pendingFileNames = new ConcurrentLinkedQueue<>();
 
     private final Map<String, FileContext> fileContexts = new ConcurrentHashMap<>();
 
@@ -55,29 +66,58 @@ public class FileQueueManager {
         fileContexts.remove(fileId);
     }
 
-    public void logProgress() {
+    public void addPendingFile(String fileName) {
+        pendingFileNames.add(fileName);
+    }
+
+    public void removePendingFile(String fileName) {
+        pendingFileNames.remove(fileName);
+    }
+
+    public List<String> getPendingFiles() {
+        return new ArrayList<>(pendingFileNames);
+    }
+
+    public void logWaitingFiles() {
         System.out.println("\n📦 [HÀNG ĐỢI FILE] Tổng số file đang xử lý: " + fileContexts.size());
 
-        if (fileContexts.isEmpty()) {
-            System.out.println("📭 Không có file nào trong hàng đợi.");
-            return;
+        if (!pendingFileNames.isEmpty()) {
+            System.out.println("📥 Các file đang đợi tới lượt xử lý:");
+            for (String name : pendingFileNames) {
+                System.out.println("🕓 " + name);
+            }
         }
 
-        for (Map.Entry<String, FileContext> entry : fileContexts.entrySet()) {
-            String fileId = entry.getKey();
-            FileContext context = entry.getValue();
+        List<FileContext> processingFiles = fileContexts.values().stream()
+                .filter(FileContext::isStillProcessing)
+                .collect(Collectors.toList());
 
-            int processed = context.getProcessedCount();
-            boolean done = context.isReadingDone();
-            int queueSize = context.getQueue().size();
-            String fileName = context.getFileName();
+        List<FileContext> errorFiles = fileContexts.values().stream()
+                .filter(FileContext::hasError)
+                .collect(Collectors.toList());
 
-            System.out.println("📄 File: " + fileName +
-                    " | ID: " + fileId +
-                    " | Đã xử lý: " + processed +
-                    " dòng | Trong hàng đợi: " + queueSize +
-                    " batch | Đọc xong: " + (done ? "✅" : "⏳"));
+        if (!processingFiles.isEmpty()) {
+            System.out.println("⏳ Các file đang xử lý:");
+            for (FileContext ctx : processingFiles) {
+                System.out.println("🕒 " + ctx.getFileName());
+            }
+        }
+
+        if (!errorFiles.isEmpty()) {
+            System.out.println("❌ Các file bị lỗi:");
+            for (FileContext ctx : errorFiles) {
+                System.out.println("🚨 " + ctx.getFileName() + " - " );
+            }
+        }
+
+        if (pendingFileNames.isEmpty() && processingFiles.isEmpty() && errorFiles.isEmpty()) {
+            System.out.println("✅ Không còn file nào đang chờ.");
         }
     }
+
+    public boolean hasError() {
+        return errorMessage != null;
+    }
+
 
 }

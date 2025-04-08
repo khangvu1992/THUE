@@ -5,6 +5,7 @@ import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.service.DatabaseService;
 import com.example.thuedientu.service.ExcellmportService;
 import com.example.thuedientu.service.FileUploadService;
+import com.example.thuedientu.util.FileQueueManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @RestController
 @RequestMapping("/api/excel1_jdbc")
@@ -30,10 +32,17 @@ public class DatabaseController {
 
     @Autowired
     private DatabaseService excelImportService;
+    @Autowired
+    private FileQueueManager fileQueueManager;
+
+
+
 
     // API để tải lên file Excel
     @PostMapping("/import")
     public ResponseEntity<String> importExcel(@RequestParam("file") MultipartFile file) {
+        fileQueueManager.addPendingFile(file.getOriginalFilename());
+
         File tempFile = null;
 
         try {

@@ -46,12 +46,13 @@ public class DatabaseService {
     public void import1Datbase1JDBC1(File file, HashFile hashFile) {
         String fileId = hashFile.getFileHash();
         String filename = hashFile.getFilename();
+        fileQueueManager.removePendingFile(filename);
 
         createTable();
         fileQueueManager.createContext(fileId, 50, filename);
 
         for (int i = 0; i < WORKER_COUNT; i++) {
-            new Thread(() -> workerWriteToDb(fileId), "worker-" + i + "-" + fileId).start();
+            new Thread(() -> workerWriteToDb(fileId,filename), "worker-" + i + "-" + fileId).start();
         }
 
         readExcelAndEnqueue(file, fileId);
@@ -63,7 +64,7 @@ public class DatabaseService {
         System.out.println("🧹 Xoá file tạm: " + file.getAbsolutePath());
     }
 
-    private void workerWriteToDb(String fileId) {
+    private void workerWriteToDb(String fileId,String filename) {
         BlockingQueue<List<EnityExcelJDBC>> queue = fileQueueManager.getQueue(fileId);
 
         while (true) {
@@ -79,6 +80,8 @@ public class DatabaseService {
 
             } catch (Exception e) {
                 e.printStackTrace();
+                fileQueueManager.setErrorMessage( "❌ Lỗi khi import file: " + filename + " - " + e.getMessage());
+
             }
         }
 
@@ -222,7 +225,7 @@ public class DatabaseService {
                 }
 
                 if (count % 10000 == 0) {
-                    fileQueueManager.logProgress();
+                    fileQueueManager.logWaitingFiles();
 
 //                    System.out.println("Progress: " + count);
                 }

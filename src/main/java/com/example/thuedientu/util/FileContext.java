@@ -16,6 +16,9 @@ public class FileContext {
     @Getter
     private final String fileName;
 
+    private volatile String errorMessage = null;
+
+
     public FileContext(BlockingQueue<List<EnityExcelJDBC>> queue, String fileName) {
         this.queue = queue;
         this.fileName = fileName;
@@ -33,4 +36,23 @@ public class FileContext {
         this.readingDone = true;
     }
 
+    // ✅ Thêm method này để dùng trong logWaitingFiles()
+    public boolean isStillProcessing() {
+        return !readingDone || !queue.isEmpty();
+    }
+
+
+
+
+    public void setErrorMessage(String message) {
+        this.errorMessage = message;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public boolean hasError() {
+        return errorMessage != null && !errorMessage.isEmpty();
+    }
 }
