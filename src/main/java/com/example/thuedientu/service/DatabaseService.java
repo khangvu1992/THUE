@@ -21,6 +21,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class DatabaseService {
@@ -33,10 +36,13 @@ public class DatabaseService {
     @Autowired
     private FileRepository fileRepository;
 
-
-
     @Autowired
     private mapEntityJDBC map1EntityJDBC;
+
+    private final int BATCH_SIZE = 20000;
+    private final int WORKER_COUNT = 16;
+    private final BlockingQueue<List<EnityExcelJDBC>> queue = new ArrayBlockingQueue<>(50);
+    private volatile boolean readingDone = false;
 
     public DatabaseService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -45,8 +51,21 @@ public class DatabaseService {
     @Async
     public void import1Datbase1JDBC1(File file, HashFile hashFile) {
         createTable();
-        int count = 0;
 
+        for (int i = 0; i < WORKER_COUNT; i++) {
+            new Thread(() -> workerWriteToDb(), "worker-" + i).start();
+        }
+
+        readExcelAndEnqueue(file);
+
+        readingDone = true;
+
+        file.delete();
+        fileRepository.save(hashFile);
+        System.out.println("🧹 Xoá file tạm: " + file.getAbsolutePath());
+    }
+
+    private void readExcelAndEnqueue(File file) {
         try (InputStream is = new FileInputStream(file);
              Workbook workbook = StreamingReader.builder()
                      .rowCacheSize(100)
@@ -55,43 +74,55 @@ public class DatabaseService {
 
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
-
             if (rows.hasNext()) rows.next(); // skip header
 
-            List<EnityExcelJDBC> batchList = new ArrayList<>();
-            int batchSize = 20000;
+            List<EnityExcelJDBC> batch = new ArrayList<>();
+            int count = 0;
 
             while (rows.hasNext()) {
                 Row row = rows.next();
                 EnityExcelJDBC entity = new EnityExcelJDBC();
                 map1EntityJDBC.mapRowToEntity(row, entity);
-                batchList.add(entity);
+                batch.add(entity);
                 count++;
 
-                if (batchList.size() >= batchSize) {
-                    insertDataBatchService1.insertDataBatch(batchList);
-                    batchList.clear();
+                if (batch.size() >= BATCH_SIZE) {
+                    queue.put(new ArrayList<>(batch));
+                    batch.clear();
                 }
 
                 if (count % 10000 == 0) {
-                    System.out.println("Progress: " + (count / 10000) + "%");
+                    System.out.println("Progress: " + count);
                 }
             }
 
-            if (!batchList.isEmpty()) {
-                insertDataBatchService1.insertDataBatch(batchList);
+            if (!batch.isEmpty()) {
+                queue.put(batch);
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            file.delete();
-            fileRepository.save(hashFile);
-
-            System.out.println("🧹 Xoá file tạm: " );
-
         }
     }
+
+    private void workerWriteToDb() {
+        while (true) {
+            try {
+                List<EnityExcelJDBC> batch = queue.poll(3, TimeUnit.SECONDS);
+                if (batch == null) {
+                    if (readingDone && queue.isEmpty()) break;
+                    else continue;
+                }
+
+                insertDataBatchService1.insertDataBatch(batch);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(Thread.currentThread().getName() + " done!");
+    }
+
 
     public void createTable() {
         String createTableSQL = "IF OBJECT_ID('dbo.khang_heheJDBC', 'U') IS NULL " +
