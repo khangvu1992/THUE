@@ -3,7 +3,9 @@ package com.example.thuedientu.service;
 import com.example.thuedientu.model.EnityExcelJDBC;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.repository.FileRepository;
+import com.example.thuedientu.util.FileContext;
 import com.example.thuedientu.util.FileQueueManager;
+import com.example.thuedientu.util.ProgressWebSocketSender;
 import com.example.thuedientu.util.mapEntityJDBC;
 import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.poi.ss.usermodel.*;
@@ -37,6 +39,8 @@ public class DatabaseService {
     @Autowired private FileRepository fileRepository;
     @Autowired private mapEntityJDBC map1EntityJDBC;
     @Autowired private FileQueueManager fileQueueManager;
+    @Autowired
+    private ProgressWebSocketSender progressWebSocketSender;
 
     public DatabaseService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -77,6 +81,9 @@ public class DatabaseService {
 
                 insertDataBatchService1.insertDataBatch(batch);
                 fileQueueManager.incrementProcessed(fileId, batch.size());
+
+//                FileContext ctx = fileQueueManager.getContext(fileId);
+                progressWebSocketSender.sendProgress1("fileId, ctx.getFileName(), ctx.getProcessedCount(), ctx.getQueue().size(), ctx.isReadingDone(), ctx.getErrorMessage()");
 
             } catch (Exception e) {
                 e.printStackTrace();
