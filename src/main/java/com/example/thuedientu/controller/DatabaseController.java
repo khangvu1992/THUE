@@ -61,7 +61,9 @@ public class DatabaseController {
                 // Gọi service để import dữ liệu từ file Excel
                 excelImportService.import1Datbase1JDBC1(tempFile);
 // Now accessible here
-                fileRepository.save(hashFile);
+                System.out.println("den day la eeeeeeeeeeeeeeeeeeeeeluu");
+
+//                fileRepository.save(hashFile);
 
 
                 return ResponseEntity.ok("File Excel đã được nhjjjjjjjjjjjhập thành công.");
