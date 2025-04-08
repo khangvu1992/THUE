@@ -3,30 +3,30 @@ package com.example.thuedientu.service;
 import com.example.thuedientu.model.EnityExcelJDBC;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.repository.FileRepository;
+import com.example.thuedientu.util.ImportProgressTracker;
 import com.example.thuedientu.util.mapEntityJDBC;
 import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.scheduling.annotation.Async;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class DatabaseService {
+
+    @Autowired
+    private ImportProgressTracker progressTracker;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -40,32 +40,71 @@ public class DatabaseService {
     private mapEntityJDBC map1EntityJDBC;
 
     private final int BATCH_SIZE = 20000;
-    private final int WORKER_COUNT = 16;
-    private final BlockingQueue<List<EnityExcelJDBC>> queue = new ArrayBlockingQueue<>(50);
-    private volatile boolean readingDone = false;
+    private final int WORKER_COUNT = 12;
 
     public DatabaseService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
     @Async
     public void import1Datbase1JDBC1(File file, HashFile hashFile) {
         createTable();
 
+        String fileId = hashFile.getFileHash();     // ID duy nhất để tra tiến độ
+        String fileName = hashFile.getFilename();   // Tên gốc của file
+        progressTracker.startTracking(fileId, fileName); // Sử dụng cả ID và tên
+
+        BlockingQueue<List<EnityExcelJDBC>> queue = new ArrayBlockingQueue<>(50);
+        AtomicBoolean readingDone = new AtomicBoolean(false);
+/// /////////////////////////////////////
+        // 🔁 Thread in thông tin tiến độ mỗi 5 giây
+        Thread loggerThread = new Thread(() -> {
+            while (!readingDone.get()) {
+                ImportProgressTracker.FileProgress progress = progressTracker.getProgress(fileId);
+                if (progress != null) {
+                    System.out.printf("📦 [%s] %s - %d/%d rows (%.2f%%) - Done: %s - Failed: %s%n",
+                            fileId,
+                            progress.getFileName(),
+                            progress.getProcessedRows(),
+                            progress.getTotalRows(),
+                            progress.getProgressPercent(),
+                            progress.isDone(),
+                            progress.isFailed());
+                }
+
+                try {
+                    Thread.sleep(5000); // ⏱️ 5 giây
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }, "progress-logger");
+
+        loggerThread.start();
+
+
+        /// //////////////////////////////
+
+
+
+
+
+
         for (int i = 0; i < WORKER_COUNT; i++) {
-            new Thread(() -> workerWriteToDb(), "worker-" + i).start();
+            new Thread(() -> workerWriteToDb(queue, readingDone, fileId), "worker-" + i).start();
         }
 
-        readExcelAndEnqueue(file);
+        readExcelAndEnqueue(file, queue, fileId);
 
-        readingDone = true;
+        readingDone.set(true);
 
         file.delete();
         fileRepository.save(hashFile);
+        progressTracker.finish(fileId);
+
         System.out.println("🧹 Xoá file tạm: " + file.getAbsolutePath());
     }
 
-    private void readExcelAndEnqueue(File file) {
+    private void readExcelAndEnqueue(File file, BlockingQueue<List<EnityExcelJDBC>> queue, String fileId) {
         try (InputStream is = new FileInputStream(file);
              Workbook workbook = StreamingReader.builder()
                      .rowCacheSize(100)
@@ -78,6 +117,7 @@ public class DatabaseService {
 
             List<EnityExcelJDBC> batch = new ArrayList<>();
             int count = 0;
+            int totalRows = 1_048_576; // Giá trị mặc định Excel
 
             while (rows.hasNext()) {
                 Row row = rows.next();
@@ -92,7 +132,7 @@ public class DatabaseService {
                 }
 
                 if (count % 10000 == 0) {
-                    System.out.println("Progress: " + count);
+                    progressTracker.updateProgress(fileId, count);
                 }
             }
 
@@ -100,26 +140,32 @@ public class DatabaseService {
                 queue.put(batch);
             }
 
+            progressTracker.updateProgress(fileId, count);
+
         } catch (Exception e) {
+            progressTracker.markFailed(fileId, e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void workerWriteToDb() {
+    private void workerWriteToDb(BlockingQueue<List<EnityExcelJDBC>> queue, AtomicBoolean readingDone, String fileId) {
         while (true) {
             try {
                 List<EnityExcelJDBC> batch = queue.poll(3, TimeUnit.SECONDS);
                 if (batch == null) {
-                    if (readingDone && queue.isEmpty()) break;
+                    if (readingDone.get() && queue.isEmpty()) break;
                     else continue;
                 }
 
                 insertDataBatchService1.insertDataBatch(batch);
+                progressTracker.incrementWritten(fileId, batch.size());
 
             } catch (Exception e) {
+                progressTracker.markFailed(fileId, e.getMessage());
                 e.printStackTrace();
             }
         }
+
         System.out.println(Thread.currentThread().getName() + " done!");
     }
 
