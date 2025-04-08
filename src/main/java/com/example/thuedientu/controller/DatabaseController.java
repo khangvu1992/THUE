@@ -37,29 +37,43 @@ public class DatabaseController {
         File tempFile = null;
 
         try {
-            // Kiểm tra xem file có trùng lặp hay không dựa trên hash
-//            if (fileUploadService.checkForDuplicateByContent(file)) {
-//                return ResponseEntity.badRequest().body("Duplicate file detected. Upload canceled.");  // Nếu trùng lặp, không tải lên
-//            }
+//             Kiểm tra xem file có trùng lặp hay không dựa trên hash
+            if (fileUploadService.checkForDuplicateByContent(file)) {
+                return ResponseEntity.badRequest().body("Duplicate file detected. Upload canceled.");  // Nếu trùng lặp, không tải lên
+            }
 
             // Nếu không trùng lặp, lưu tên file vào cơ sở dữ liệu
             HashFile hashFile = new HashFile();
-            System.out.println("dfffffffffffffffffff");
             hashFile.setFilename(file.getOriginalFilename());
             hashFile.setFileHash(fileUploadService.generateFileHash(file));  // Set the hash
 
-            System.out.println("den day la luu");
 
 
 
             try {
-                // Tạo file tạm để xử lý
-                tempFile = File.createTempFile("myTemp", ".xlsx"); // or .txt depending on your use
-                System.out.println("Temp file created at: " + tempFile.getAbsolutePath());
-                file.transferTo(tempFile);  // Chuyển dữ liệu từ MultipartFile vào temp file
+
+                // 1. Đường dẫn cố định
+                String tempDirPath = "D:\\excel-import-temp\\";
+                File tempDir = new File(tempDirPath);
+                if (!tempDir.exists()) {
+                    tempDir.mkdirs(); // tạo thư mục nếu chưa tồn tại
+                }
+
+                // 2. Tạo file mới trong thư mục đó
+                String fileName = "import_" + System.currentTimeMillis() + ".xlsx";
+                File safeTempFile = new File(tempDir, fileName);
+                file.transferTo(safeTempFile); // copy dữ liệu từ MultipartFile vào file thật
+
+                System.out.println("📁 File saved at: " + safeTempFile.getAbsolutePath());
+
+//
+//                // Tạo file tạm để xử lý
+//                tempFile = File.createTempFile("myTemp", ".xlsx"); // or .txt depending on your use
+//                System.out.println("Temp file created at: " + tempFile.getAbsolutePath());
+//                file.transferTo(tempFile);  // Chuyển dữ liệu từ MultipartFile vào temp file
 
                 // Gọi service để import dữ liệu từ file Excel
-                excelImportService.import1Datbase1JDBC1(tempFile);
+                excelImportService.import1Datbase1JDBC1(safeTempFile,hashFile);
 // Now accessible here
                 System.out.println("den day la eeeeeeeeeeeeeeeeeeeeeluu");
 
@@ -73,7 +87,7 @@ public class DatabaseController {
             } finally {
 
                 if (tempFile != null && tempFile.exists()) {
-                    tempFile.delete(); // Xóa file tạm sau khi xử lý
+//                    tempFile.delete(); // Xóa file tạm sau khi xử lý
                 }
             }
 

@@ -1,6 +1,8 @@
 package com.example.thuedientu.service;
 
 import com.example.thuedientu.model.EnityExcelJDBC;
+import com.example.thuedientu.model.HashFile;
+import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.util.mapEntityJDBC;
 import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.poi.ss.usermodel.*;
@@ -28,6 +30,9 @@ public class DatabaseService {
     @Autowired
     private insertDataBatchService insertDataBatchService1;
 
+    @Autowired
+    private FileRepository fileRepository;
+
 
 
     @Autowired
@@ -38,7 +43,7 @@ public class DatabaseService {
     }
 
     @Async
-    public void import1Datbase1JDBC1(File file) {
+    public void import1Datbase1JDBC1(File file, HashFile hashFile) {
         createTable();
         int count = 0;
 
@@ -81,6 +86,10 @@ public class DatabaseService {
             e.printStackTrace();
         } finally {
             file.delete();
+            fileRepository.save(hashFile);
+
+            System.out.println("🧹 Xoá file tạm: " );
+
         }
     }
 
