@@ -20,12 +20,16 @@ public class ExcelDataFormatterService {
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
-    public BigDecimal parseBigDecimal(String input) {
+    public BigDecimal parseBigDecimal(String input,int i) {
+
         if (input == null || input.trim().isEmpty()) return null;
         try {
             return new BigDecimal(input.replace(",", "").trim());
         } catch (NumberFormatException e) {
-            System.err.println("Invalid BigDecimal: " + input);
+            logger.warn("Invalid BigDecimar: {}", input, e); // log rõ ràng và chuyên nghiệp
+            logger.warn("Invalid BigDecimar: {}", i, e); // log rõ ràng và chuyên nghiệp
+
+
             return null;
         }
     }
@@ -40,13 +44,15 @@ public class ExcelDataFormatterService {
         }
     }
 
-    public Integer parseInteger(String value) {
+    public Integer parseInteger(String value,int i) {
         if (value == null || value.trim().isEmpty()) return null;
         try {
             return Integer.parseInt(value.trim());
         } catch (NumberFormatException e) {
             System.out.println(value);
-            logger.warn("Invalid BigDecimal: {}", value, e); // log rõ ràng và chuyên nghiệp
+            logger.warn("Invalid Integer: {}", value, e); // log rõ ràng và chuyên nghiệp
+            logger.warn("Invalid Integer iiiii: {}", i, e); // log rõ ràng và chuyên nghiệp
+
 
             return null; // hoặc throw nếu bạn muốn xử lý ở tầng cao hơn
         }

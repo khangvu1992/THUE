@@ -105,24 +105,26 @@ public class DatabaseService {
                 "BEGIN " +
                 "CREATE TABLE dbo.khang_heheJDBC (" +
                 "tkid BIGINT, sotk NVARCHAR(255), mahq NVARCHAR(255), trangthaitk NVARCHAR(255), " +
-                "bpkthsdt INT,  bptq INT, ptvc NVARCHAR(255), malh NVARCHAR(255), " +
+                "bpkthsdt BIGINT,  bptq NVARCHAR(255), ptvc NVARCHAR(255), malh NVARCHAR(255), " +
                 "ngay_Dk DATE, hour_Dk TIME(0), ngay_Thay_doiDk DATE, " +
                 "hour_Thay_doi_Dk TIME(0), masothue_Kbhq NVARCHAR(255), ten_Doanhnghiep NVARCHAR(255), " +
                 "sodienthoai NVARCHAR(255), ten_Doanhnghiep_Uythac NVARCHAR(255), ten_Doitacnuocngoai NVARCHAR(255), " +
                 "maquocgia_Doitacnuocngoai NCHAR(10), vandon_01 NVARCHAR(255), vandon_02 NVARCHAR(255), vandon_03 NVARCHAR(255), " +
                 "vandon_04 NVARCHAR(255), vandon_05 NVARCHAR(255), soluongkienhang BIGINT, " +
-                "ma_Dvt_Kienhang NVARCHAR(255), grossweight DECIMAL(18,5), ma_Dvt_Gw NVARCHAR(255), " +
-                "soluong_Container INT, ma_Diadiemdohang NVARCHAR(255), ma_Diadiemxephang NVARCHAR(255), " +
+                "ma_Dvt_Kienhang NVARCHAR(255), grossweight DECIMAL(15,3), ma_Dvt_Gw NVARCHAR(255), " +
+                "soluong_Container BIGINT, ma_Diadiemdohang NVARCHAR(255), ma_Diadiemxephang NVARCHAR(255), " +
                 "ten_Phuongtienvanchuyen NVARCHAR(255), ngay_Hang_Den DATE, phuong_Thuc_Thanh_Toan NVARCHAR(255), " +
-                "tong_Tri_Gia_Hoa_Don DECIMAL(18,5), tong_Tri_Gia_Tinh_Thue DECIMAL(18,5), tong_Tien_Thue DECIMAL(18,5), " +
+                "tong_Tri_Gia_Hoa_Don DECIMAL(20,3), tong_Tri_Gia_Tinh_Thue DECIMAL(20,3), tong_Tien_Thue DECIMAL(20,3), " +
                 "tong_So_Donghang BIGINT, ngay_Cap_Phep DATE, gio_Cap_Phep TIME(0), " +
                 "ngay_Hoanthanh_Kiemtra DATE, gio_Hoanthanh_Kiemtra TIME(0), ngay_Huy_Tk DATE, " +
                 "gio_Huy_Tk TIME(0), ten_Nguoiphutrach_Kiemtrahoso NVARCHAR(255), ten_Nguoiphutrach_Kiemhoa NVARCHAR(255), " +
-                "hs_Code NVARCHAR(255), mo_Ta_Hang_Hoa NVARCHAR(4000), so_Luong_Hanghoa INT, " +
-                "ma_Dvt_Hanghoa NVARCHAR(255), tri_Gia_Hoa_Don DECIMAL(18,5), dongia_Hoadon DECIMAL(18,5), " +
-                "ma_Tiente_Hoadon NVARCHAR(255), donvi_Dongia_Tiente NVARCHAR(255), tri_Gia_Tinh_Thue_S DECIMAL(18,5), " +
-                "tri_Gia_Tinh_Thue_M DECIMAL(18,5), dongia_Tinhthue DECIMAL(18,7), thuesuat_Nhapkhau NVARCHAR(255), " +
-                "tien_Thue_Nhapkhau DECIMAL(18,5), xuatXu NVARCHAR(255), ma_Vanbanphapquy NVARCHAR(255), " +
+                "hs_Code NVARCHAR(255), mo_Ta_Hang_Hoa NVARCHAR(4000), so_Luong_Hanghoa DECIMAL(20,3), " +
+                "ma_Dvt_Hanghoa NVARCHAR(255), tri_Gia_Hoa_Don DECIMAL(20,3), dongia_Hoadon DECIMAL(20,3), " +
+
+                "ma_Tiente_Hoadon NVARCHAR(255), donvi_Dongia_Tiente NVARCHAR(255), tri_Gia_Tinh_Thue_S DECIMAL(20,3), " +
+                "tri_Gia_Tinh_Thue_M DECIMAL(20,3), dongia_Tinhthue DECIMAL(20,3), thuesuat_Nhapkhau NVARCHAR(255), " +
+
+                "tien_Thue_Nhapkhau DECIMAL(20,3), xuatXu NVARCHAR(255), ma_Vanbanphapquy NVARCHAR(255), " +
                 "phanloai_Giayphep_Nk NVARCHAR(255), ma_Bieuthue_Nk NVARCHAR(255), ma_Miengiam_Thue NVARCHAR(255)" +
                 "); END";
 
@@ -159,17 +161,14 @@ public class DatabaseService {
             ps.setString(3, e.getMahq());
             ps.setString(4, e.getTrangthaitk());
 
-            if (formatterService.parseInteger(e.getBpkthsdt()) != null) {
-                ps.setInt(5, formatterService.parseInteger(e.getBpkthsdt()) );
+            if (formatterService.parseInteger(e.getBpkthsdt(),1) != null) {
+                ps.setInt(5, formatterService.parseInteger(e.getBpkthsdt(),2) );
             } else {
                 ps.setNull(5, Types.INTEGER);
             }
 
-            if (formatterService.parseInteger(e.getBptq()) != null) {
-                ps.setInt(6, formatterService.parseInteger(e.getBptq()));
-            } else {
-                ps.setNull(6, Types.INTEGER);
-            }
+            ps.setString(6, e.getBptq());
+
 
             ps.setString(7, e.getPtvc());
             ps.setString(8, e.getMalh());
@@ -189,8 +188,8 @@ public class DatabaseService {
             ps.setString(22, e.getVandon04());
             ps.setString(23, e.getVandon05());
 
-            if (formatterService.parseInteger( e.getSoluongkienhang()) != null) {
-                ps.setInt(24,formatterService.parseInteger( e.getSoluongkienhang()));
+            if (formatterService.parseInteger( e.getSoluongkienhang(),5) != null) {
+                ps.setInt(24,formatterService.parseInteger( e.getSoluongkienhang(),6));
             } else {
                 ps.setNull(24, Types.INTEGER);
             }
@@ -198,8 +197,8 @@ public class DatabaseService {
 
 
             ps.setString(25, e.getMaDvtKienhang());
-            if (formatterService.parseBigDecimal( e.getGrossweight()) != null) {
-                ps.setBigDecimal(26, formatterService.parseBigDecimal( e.getGrossweight()));
+            if (formatterService.parseBigDecimal( e.getGrossweight(),26) != null) {
+                ps.setBigDecimal(26, formatterService.parseBigDecimal( e.getGrossweight(),26));
             } else {
                 ps.setNull(26, Types.INTEGER);
             }
@@ -209,8 +208,8 @@ public class DatabaseService {
 
             ps.setString(27, e.getMaDvtGw());
 
-            if ( formatterService.parseInteger(e.getSoluongContainer()) != null) {
-                ps.setInt(28, formatterService.parseInteger(e.getSoluongContainer()));
+            if ( formatterService.parseInteger(e.getSoluongContainer(),7) != null) {
+                ps.setInt(28, formatterService.parseInteger(e.getSoluongContainer(),8));
             } else {
                 ps.setNull(28, Types.INTEGER);
             }
@@ -222,12 +221,12 @@ public class DatabaseService {
             ps.setString(31, e.getTenPhuongtienvanchuyen());
             ps.setDate(32, formatterService.parseSqlDate( e.getNgayHangDen()));
             ps.setString(33, e.getPhuongThucThanhToan());
-            ps.setBigDecimal(34, formatterService.parseBigDecimal(e.getTongTriGiaHoaDon()));
-            ps.setBigDecimal(35, formatterService.parseBigDecimal(e.getTongTriGiaTinhThue()));
-            ps.setBigDecimal(36, formatterService.parseBigDecimal(e.getTongTienThue()));
+            ps.setBigDecimal(34, formatterService.parseBigDecimal(e.getTongTriGiaHoaDon(),34));
+            ps.setBigDecimal(35, formatterService.parseBigDecimal(e.getTongTriGiaTinhThue(),35));
+            ps.setBigDecimal(36, formatterService.parseBigDecimal(e.getTongTienThue(),36));
 
-            if ( formatterService.parseInteger(e.getTongSoDonghang()) != null) {
-                ps.setInt(37, formatterService.parseInteger(e.getTongSoDonghang()));
+            if ( formatterService.parseInteger(e.getTongSoDonghang(),9) != null) {
+                ps.setInt(37, formatterService.parseInteger(e.getTongSoDonghang(),10));
             } else {
                 ps.setNull(37, Types.INTEGER);
             }
@@ -243,22 +242,19 @@ public class DatabaseService {
             ps.setString(46, e.getHsCode());
             ps.setString(47, e.getMoTaHangHoa());
 
-            if ( formatterService.parseInteger(e.getSoLuongHanghoa()) != null) {
-                ps.setInt(48, formatterService.parseInteger(e.getSoLuongHanghoa()));
-            } else {
-                ps.setNull(48, Types.INTEGER);
-            }
+            ps.setBigDecimal(48, formatterService.parseBigDecimal(e.getSoLuongHanghoa(),12));
+
 
             ps.setString(49, e.getMaDvtHanghoa());
-            ps.setBigDecimal(50, formatterService.parseBigDecimal(e.getTriGiaHoaDon()));
-            ps.setBigDecimal(51, formatterService.parseBigDecimal(e.getDongiaHoadon()));
+            ps.setBigDecimal(50, formatterService.parseBigDecimal(e.getTriGiaHoaDon(),50));
+            ps.setBigDecimal(51, formatterService.parseBigDecimal(e.getDongiaHoadon(),55));
             ps.setString(52, e.getMaTienteHoadon());
             ps.setString(53, e.getDonviDongiaTiente());
-            ps.setBigDecimal(54, formatterService.parseBigDecimal(e.getTriGiaTinhThueS()));
-            ps.setBigDecimal(55, formatterService.parseBigDecimal(e.getTriGiaTinhThueM()));
-            ps.setBigDecimal(56, formatterService.parseBigDecimal( e.getDongiaTinhthue()));
+            ps.setBigDecimal(54, formatterService.parseBigDecimal(e.getTriGiaTinhThueS(),51));
+            ps.setBigDecimal(55, formatterService.parseBigDecimal(e.getTriGiaTinhThueM(),52));
+            ps.setBigDecimal(56, formatterService.parseBigDecimal( e.getDongiaTinhthue(),53));
             ps.setString(57, e.getThuesuatNhapkhau());
-            ps.setBigDecimal(58, formatterService.parseBigDecimal( e.getTienThueNhapkhau()));
+            ps.setBigDecimal(58, formatterService.parseBigDecimal( e.getTienThueNhapkhau(),54));
             ps.setString(59, e.getXuatxu());
             ps.setString(60, e.getMaVanbanphapquy());
             ps.setString(61, e.getPhanloaiGiayphepNk());
