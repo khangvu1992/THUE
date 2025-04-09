@@ -2,10 +2,12 @@ package com.example.thuedientu.model;
 
 import lombok.Data;
 
-
 @Data
 public class EnityExcelJDBC {
 
+    private String tkid;
+    private String sotk;
+    private String mahq;
     private String trangthaitk;
     private String bpkthsdt;
     private String bptq;
@@ -66,8 +68,4 @@ public class EnityExcelJDBC {
     private String phanloaiGiayphepNk;
     private String maBieuthueNk;
     private String maMiengiamThue;
-    private String tkid;
-    private String sotk;
-    private String mahq;
-
 }
