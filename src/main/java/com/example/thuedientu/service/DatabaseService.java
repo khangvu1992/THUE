@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -142,13 +143,34 @@ public class DatabaseService {
                 "tri_Gia_Tinh_Thue_M, dongia_Tinhthue, thuesuat_Nhapkhau, tien_Thue_Nhapkhau, xuatXu, ma_Vanbanphapquy, phanloai_Giayphep_Nk, ma_Bieuthue_Nk, ma_Miengiam_Thue ) " +
                 "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
+
+
+
         jdbcTemplate.batchUpdate(insertSQL, batchList, batchList.size(), (ps, e) -> {
-            ps.setLong(1,formatterService.parseLong(e.getTkid()));
+            if (formatterService.parseLong(e.getTkid()) != null) {
+                ps.setLong(1, formatterService.parseLong(e.getTkid()));
+            } else {
+                ps.setNull(1, Types.INTEGER);
+            }
+
+
+//            ps.setLong(1,formatterService.parseLong(e.getTkid()));
             ps.setString(2, e.getSotk());
             ps.setString(3, e.getMahq());
             ps.setString(4, e.getTrangthaitk());
-            ps.setInt(5, formatterService.parseInteger(e.getBpkthsdt()) );
-            ps.setInt(6, formatterService.parseInteger(e.getBptq()));
+
+            if (formatterService.parseInteger(e.getBpkthsdt()) != null) {
+                ps.setInt(5, formatterService.parseInteger(e.getBpkthsdt()) );
+            } else {
+                ps.setNull(5, Types.INTEGER);
+            }
+
+            if (formatterService.parseInteger(e.getBptq()) != null) {
+                ps.setInt(6, formatterService.parseInteger(e.getBptq()));
+            } else {
+                ps.setNull(6, Types.INTEGER);
+            }
+
             ps.setString(7, e.getPtvc());
             ps.setString(8, e.getMalh());
             ps.setDate(9, formatterService.parseSqlDate(e.getNgayDk()));
@@ -166,11 +188,35 @@ public class DatabaseService {
             ps.setString(21, e.getVandon03());
             ps.setString(22, e.getVandon04());
             ps.setString(23, e.getVandon05());
-            ps.setInt(24,formatterService.parseInteger( e.getSoluongkienhang()));
+
+            if (formatterService.parseInteger( e.getSoluongkienhang()) != null) {
+                ps.setInt(24,formatterService.parseInteger( e.getSoluongkienhang()));
+            } else {
+                ps.setNull(24, Types.INTEGER);
+            }
+
+
+
             ps.setString(25, e.getMaDvtKienhang());
-            ps.setBigDecimal(26, formatterService.parseBigDecimal( e.getGrossweight()));
+            if (formatterService.parseBigDecimal( e.getGrossweight()) != null) {
+                ps.setBigDecimal(26, formatterService.parseBigDecimal( e.getGrossweight()));
+            } else {
+                ps.setNull(26, Types.INTEGER);
+            }
+
+
+
+
             ps.setString(27, e.getMaDvtGw());
-            ps.setInt(28, formatterService.parseInteger(e.getSoluongContainer()));
+
+            if ( formatterService.parseInteger(e.getSoluongContainer()) != null) {
+                ps.setInt(28, formatterService.parseInteger(e.getSoluongContainer()));
+            } else {
+                ps.setNull(28, Types.INTEGER);
+            }
+
+
+
             ps.setString(29, e.getMaDiadiemdohang());
             ps.setString(30, e.getMaDiadiemxephang());
             ps.setString(31, e.getTenPhuongtienvanchuyen());
@@ -179,7 +225,13 @@ public class DatabaseService {
             ps.setBigDecimal(34, formatterService.parseBigDecimal(e.getTongTriGiaHoaDon()));
             ps.setBigDecimal(35, formatterService.parseBigDecimal(e.getTongTriGiaTinhThue()));
             ps.setBigDecimal(36, formatterService.parseBigDecimal(e.getTongTienThue()));
-            ps.setInt(37, formatterService.parseInteger(e.getTongSoDonghang()));
+
+            if ( formatterService.parseInteger(e.getTongSoDonghang()) != null) {
+                ps.setInt(37, formatterService.parseInteger(e.getTongSoDonghang()));
+            } else {
+                ps.setNull(37, Types.INTEGER);
+            }
+
             ps.setDate(38, formatterService.parseSqlDate(e.getNgayCapPhep()));
             ps.setTime(39, formatterService.parseSqlTime(e.getGioCapPhep()));
             ps.setDate(40, formatterService.parseSqlDate(e.getNgayHoanthanhKiemtra()));
@@ -190,7 +242,13 @@ public class DatabaseService {
             ps.setString(45, e.getTenNguoiphutrachKiemhoa());
             ps.setString(46, e.getHsCode());
             ps.setString(47, e.getMoTaHangHoa());
-            ps.setInt(48, formatterService.parseInteger(e.getSoLuongHanghoa()));
+
+            if ( formatterService.parseInteger(e.getSoLuongHanghoa()) != null) {
+                ps.setInt(48, formatterService.parseInteger(e.getSoLuongHanghoa()));
+            } else {
+                ps.setNull(48, Types.INTEGER);
+            }
+
             ps.setString(49, e.getMaDvtHanghoa());
             ps.setBigDecimal(50, formatterService.parseBigDecimal(e.getTriGiaHoaDon()));
             ps.setBigDecimal(51, formatterService.parseBigDecimal(e.getDongiaHoadon()));
