@@ -100,42 +100,43 @@ public class DatabaseService {
         String createTableSQL = "IF OBJECT_ID('dbo.khang_heheJDBC', 'U') IS NULL " +
                 "BEGIN " +
                 "CREATE TABLE dbo.khang_heheJDBC (" +
-                "trangthaitk NVARCHAR(255), bpkthsdt NVARCHAR(255), bptq NVARCHAR(255), ptvc NVARCHAR(255), " +
-                "malh NVARCHAR(255), ngayDk NVARCHAR(255), hourDk NVARCHAR(255), ngayThaydoiDk NVARCHAR(255), " +
-                "hourThaydoiDk NVARCHAR(255), masothueKbhq NVARCHAR(255), tenDoanhnghiep NVARCHAR(255), " +
-                "sodienthoai NVARCHAR(255), tenDoanhnghiepUythac NVARCHAR(255), tenDoitacnuocngoai NVARCHAR(255), " +
-                "maquocgiaDoitacnuocngoai NVARCHAR(255), vandon01 NVARCHAR(255), vandon02 NVARCHAR(255), " +
-                "vandon03 NVARCHAR(255), vandon04 NVARCHAR(255), vandon05 NVARCHAR(255), soluongkienhang NVARCHAR(255), " +
-                "maDvtKienhang NVARCHAR(255), grossweight NVARCHAR(255), maDvtGw NVARCHAR(255), " +
-                "soluongContainer NVARCHAR(255), maDiadiemdohang NVARCHAR(255), maDiadiemxephang NVARCHAR(255), " +
-                "tenPhuongtienvanchuyen NVARCHAR(255), ngayHangDen NVARCHAR(255), phuongThucThanhToan NVARCHAR(255), " +
-                "tongTriGiaHoaDon NVARCHAR(255), tongTriGiaTinhThue NVARCHAR(255), tongTienThue NVARCHAR(255), " +
-                "tongSoDonghang NVARCHAR(255), ngayCapPhep NVARCHAR(255), gioCapPhep NVARCHAR(255), " +
-                "ngayHoanthanhKiemtra NVARCHAR(255), gioHoanthanhKiemtra NVARCHAR(255), ngayHuyTk NVARCHAR(255), " +
-                "gioHuyTk NVARCHAR(255), tenNguoiphutrachKiemtrahoso NVARCHAR(255), tenNguoiphutrachKiemhoa NVARCHAR(255), " +
-                "hsCode NVARCHAR(255), moTaHangHoa NVARCHAR(255), soLuongHanghoa NVARCHAR(255), " +
-                "maDvtHanghoa NVARCHAR(255), triGiaHoaDon NVARCHAR(255), dongiaHoadon NVARCHAR(255), " +
-                "maTienteHoadon NVARCHAR(255), donviDongiaTiente NVARCHAR(255), triGiaTinhThueS NVARCHAR(255), " +
-                "triGiaTinhThueM NVARCHAR(255), dongiaTinhthue NVARCHAR(255), thuesuatNhapkhau NVARCHAR(255), " +
-                "tienThueNhapkhau NVARCHAR(255), xuatxu NVARCHAR(255), maVanbanphapquy NVARCHAR(255), " +
-                "phanloaiGiayphepNk NVARCHAR(255), maBieuthueNk NVARCHAR(255), maMiengiamThue NVARCHAR(255), " +
-                "tkid NVARCHAR(255), sotk NVARCHAR(255), mahq NVARCHAR(255)" +
+                "tkid BIGINT, sotk NVARCHAR(255), mahq NVARCHAR(255), trangthaitk NVARCHAR(255), " +
+                "bpkthsdt INT,  bptq INT, ptvc NVARCHAR(255), malh NVARCHAR(255), " +
+                "ngay_Dk DATE, hour_Dk TIME, ngay_Thay_doiDk DATE, " +
+                "hour_Thay_doi_Dk TIME, masothue_Kbhq NVARCHAR(255), ten_Doanhnghiep NVARCHAR(255), " +
+                "sodienthoai NVARCHAR(255), ten_Doanhnghiep_Uythac NVARCHAR(255), ten_Doitacnuocngoai NVARCHAR(255), " +
+                "maquocgia_Doitacnuocngoai NCHAR(10), vandon_01 NVARCHAR(255), vandon_02 NVARCHAR(255), vandon_03 NVARCHAR(255), " +
+                "vandon_04 NVARCHAR(255), vandon_05 NVARCHAR(255), soluongkienhang BIGINT, " +
+                "ma_Dvt_Kienhang NVARCHAR(255), grossweight DECIMAL(18,5), ma_Dvt_Gw NVARCHAR(255), " +
+                "soluong_Container INT, ma_Diadiemdohang NVARCHAR(255), ma_Diadiemxephang NVARCHAR(255), " +
+                "ten_Phuongtienvanchuyen NVARCHAR(255), ngay_Hang_Den DATE, phuong_Thuc_Thanh_Toan NVARCHAR(255), " +
+                "tong_Tri_Gia_Hoa_Don DECIMAL(18,5), tong_Tri_Gia_Tinh_Thue DECIMAL(18,5), tong_Tien_Thue DECIMAL(18,5), " +
+                "tong_So_Donghang BIGINT, ngay_Cap_Phep DATE, gio_Cap_Phep TIME, " +
+                "ngay_Hoanthanh_Kiemtra DATE, gio_Hoanthanh_Kiemtra TIME, ngay_Huy_Tk DATE, " +
+                "gio_Huy_Tk TIME, ten_Nguoiphutrach_Kiemtrahoso NVARCHAR(255), ten_Nguoiphutrach_Kiemhoa NVARCHAR(255), " +
+                "hs_Code NVARCHAR(255), mo_Ta_Hang_Hoa NVARCHAR(4000), so_Luong_Hanghoa INT, " +
+                "ma_Dvt_Hanghoa NVARCHAR(255), tri_Gia_Hoa_Don DECIMAL(18,5), dongia_Hoadon DECIMAL(18,5), " +
+                "ma_Tiente_Hoadon NVARCHAR(255), donvi_Dongia_Tiente NVARCHAR(255), tri_Gia_Tinh_Thue_S DECIMAL(18,5), " +
+                "tri_Gia_Tinh_Thue_M DECIMAL(18,5), dongia_Tinhthue DECIMAL(18,7), thuesuat_Nhapkhau NVARCHAR(255), " +
+                "tien_Thue_Nhapkhau DECIMAL(18,5), xuatXu NVARCHAR(255), ma_Vanbanphapquy NVARCHAR(255), " +
+                "phanloai_Giayphep_Nk NVARCHAR(255), ma_Bieuthue_Nk NVARCHAR(255), ma_Miengiam_Thue NVARCHAR(255)" +
                 "); END";
+
 
         jdbcTemplate.execute(createTableSQL);
     }
 
 //    @Transactional
     public void insertDataBatch(List<EnityExcelJDBC> batchList) {
-        String insertSQL = "INSERT INTO khang_heheJDBC (bpkthsdt, bptq, ptvc, malh, ngayDk, hourDk, ngayThaydoiDk, hourThaydoiDk, " +
-                "masothueKbhq, tenDoanhnghiep, sodienthoai, tenDoanhnghiepUythac, tenDoitacnuocngoai, maquocgiaDoitacnuocngoai, " +
-                "vandon01, vandon02, vandon03, vandon04, vandon05, soluongkienhang, maDvtKienhang, grossweight, maDvtGw, " +
-                "soluongContainer, maDiadiemdohang, maDiadiemxephang, tenPhuongtienvanchuyen, ngayHangDen, phuongThucThanhToan, " +
-                "tongTriGiaHoaDon, tongTriGiaTinhThue, tongTienThue, tongSoDonghang, ngayCapPhep, gioCapPhep, " +
-                "ngayHoanthanhKiemtra, gioHoanthanhKiemtra, ngayHuyTk, gioHuyTk, tenNguoiphutrachKiemtrahoso, " +
-                "tenNguoiphutrachKiemhoa, hsCode, moTaHangHoa, soLuongHanghoa, maDvtHanghoa, triGiaHoaDon, dongiaHoadon, " +
-                "maTienteHoadon, donviDongiaTiente, triGiaTinhThueS, triGiaTinhThueM, dongiaTinhthue, thuesuatNhapkhau, " +
-                "tienThueNhapkhau, xuatxu, maVanbanphapquy, phanloaiGiayphepNk, maBieuthueNk, maMiengiamThue, tkid, sotk, mahq, trangthaitk) " +
+        String insertSQL = "INSERT INTO khang_heheJDBC (tkid, sotk, mahq, trangthaitk, bpkthsdt, bptq, ptvc, malh, " +
+                "ngay_Dk, hour_Dk, ngay_Thay_doiDk, hour_Thay_doi_Dk, masothue_Kbhq, ten_Doanhnghiep, " +
+                "sodienthoai, ten_Doanhnghiep_Uythac, ten_Doitacnuocngoai, maquocgia_Doitacnuocngoai, vandon_01, vandon_02, vandon_03, vandon_04, vandon_05, " +
+                "soluongkienhang, ma_Dvt_Kienhang, grossweight, ma_Dvt_Gw, soluong_Container, ma_Diadiemdohang, " +
+                "ma_Diadiemxephang, ten_Phuongtienvanchuyen, ngay_Hang_Den, phuong_Thuc_Thanh_Toan, tong_Tri_Gia_Hoa_Don, tong_Tri_Gia_Tinh_Thue, " +
+                "tong_Tien_Thue, tong_So_Donghang, ngay_Cap_Phep, gio_Cap_Phep, ngay_Hoanthanh_Kiemtra, " +
+                "gio_Hoanthanh_Kiemtra, ngay_Huy_Tk, gio_Huy_Tk, ten_Nguoiphutrach_Kiemtrahoso, ten_Nguoiphutrach_Kiemhoa, hs_Code, mo_Ta_Hang_Hoa, so_Luong_Hanghoa, " +
+                "ma_Dvt_Hanghoa, tri_Gia_Hoa_Don, dongia_Hoadon, ma_Tiente_Hoadon, donvi_Dongia_Tiente, tri_Gia_Tinh_Thue_S, " +
+                "tri_Gia_Tinh_Thue_M, dongia_Tinhthue, thuesuat_Nhapkhau, tien_Thue_Nhapkhau, xuatXu, ma_Vanbanphapquy, phanloai_Giayphep_Nk, ma_Bieuthue_Nk, ma_Miengiam_Thue ) " +
                 "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         jdbcTemplate.batchUpdate(insertSQL, batchList, batchList.size(), (ps, e) -> {
