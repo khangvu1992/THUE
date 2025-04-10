@@ -27,9 +27,15 @@ public class ProgressWebSocketSender {
         messagingTemplate.convertAndSend("/topic/progress", payload);
     }
 
-    public void sendProgress1(String khang) {
+
+
+
+    public void sendProgress1(String fileId,String fileName,int processed,boolean done) {
         Map<String, Object> payload = new HashMap<>();
-        payload.put("fileId", khang);
+        payload.put("fileId", fileId);
+        payload.put("fileName", fileName);
+        payload.put("processed", processed);
+        payload.put("done", done);
 
 
         messagingTemplate.convertAndSend("/topic/progress", payload);

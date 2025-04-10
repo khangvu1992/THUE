@@ -63,7 +63,7 @@ public class DatabaseService {
             new Thread(() -> workerWriteToDb(fileId,filename), "worker-" + i + "-" + fileId).start();
         }
 
-        readExcelAndEnqueue(file, fileId);
+        readExcelAndEnqueue(file, fileId,filename);
 
         fileQueueManager.markReadingDone(fileId);
 
@@ -86,8 +86,10 @@ public class DatabaseService {
                 insertDataBatch(batch);
                 fileQueueManager.incrementProcessed(fileId, batch.size());
 
+
+
 //                FileContext ctx = fileQueueManager.getContext(fileId);
-                progressWebSocketSender.sendProgress1("fileId, ctx.getFileName(), ctx.getProcessedCount(), ctx.getQueue().size(), ctx.isReadingDone(), ctx.getErrorMessage()");
+//                progressWebSocketSender.sendProgress1("fileId, ctx.getFileName(), ctx.getProcessedCount(), ctx.getQueue().size(), ctx.isReadingDone(), ctx.getErrorMessage()");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -97,6 +99,8 @@ public class DatabaseService {
         }
 
         System.out.println(Thread.currentThread().getName() + " done!");
+        progressWebSocketSender.sendProgress1(fileId,filename, 100,true);
+
         fileQueueManager.removeContext(fileId);
     }
 //
@@ -264,7 +268,7 @@ public class DatabaseService {
         });
     }
 
-    private void readExcelAndEnqueue(File file, String fileId) {
+    private void readExcelAndEnqueue(File file, String fileId,String filename) {
         try (InputStream is = new FileInputStream(file);
              Workbook workbook = StreamingReader.builder()
                      .rowCacheSize(100)
@@ -292,8 +296,9 @@ public class DatabaseService {
 
                 if (count % 10000 == 0) {
                     fileQueueManager.logWaitingFiles();
-                    progressWebSocketSender.sendProgress1("fileId, ctx.getFileName(), ctx.getProcessedCount(), ctx.getQueue().size(), ctx.isReadingDone(), ctx.getErrorMessage()");
+                    int progress = (int) count*100 / 1048576 ;
 
+                    progressWebSocketSender.sendProgress1(fileId,filename, progress,false);
 
 //                    System.out.println("Progress: " + count);
                 }
