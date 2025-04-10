@@ -58,7 +58,7 @@ public class DatabaseController {
             try {
 
                 // 1. Đường dẫn cố định
-                String tempDirPath = "D:\\excel-import-temp\\";
+                String tempDirPath = "C:\\excel-import-temp\\";
                 File tempDir = new File(tempDirPath);
                 if (!tempDir.exists()) {
                     tempDir.mkdirs(); // tạo thư mục nếu chưa tồn tại
