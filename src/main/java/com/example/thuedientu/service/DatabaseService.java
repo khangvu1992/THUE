@@ -37,7 +37,7 @@ public class DatabaseService {
 
     private final JdbcTemplate jdbcTemplate;
     private final int BATCH_SIZE = 20000;
-    private final int WORKER_COUNT = 1;
+    private final int WORKER_COUNT = 16;
 
     @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired private FileRepository fileRepository;
