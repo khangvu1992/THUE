@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "bang_rac")
+@Table(name = "thue_nhap_khau")
 @Data
 public class EnityExcel {
 
@@ -12,10 +12,19 @@ public class EnityExcel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "tkid", columnDefinition = "BIGINT")
+    private String tkid;
+
+    @Column(name = "sotk", columnDefinition = "NVARCHAR(255)")
+    private String sotk;
+
+    @Column(name = "mahq", columnDefinition = "NVARCHAR(255)")
+    private String mahq;
+
     @Column(name = "trangthaitk", columnDefinition = "NVARCHAR(255)")
     private String trangthaitk;
 
-    @Column(name = "bpkthsdt", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "bpkthsdt", columnDefinition = "BIGINT")
     private String bpkthsdt;
 
     @Column(name = "bptq", columnDefinition = "NVARCHAR(255)")
@@ -27,178 +36,171 @@ public class EnityExcel {
     @Column(name = "malh", columnDefinition = "NVARCHAR(255)")
     private String malh;
 
-    @Column(name = "ngayDk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ngay_Dk", columnDefinition = "DATE")
     private String ngayDk;
 
-    @Column(name = "hourDk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "hour_Dk", columnDefinition = "TIME(0)")
     private String hourDk;
 
-    @Column(name = "ngayThaydoiDk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ngay_Thaydoi_Dk", columnDefinition = "DATE")
     private String ngayThaydoiDk;
 
-    @Column(name = "hourThaydoiDk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "hour_Thaydoi_Dk", columnDefinition = "TIME(0)")
     private String hourThaydoiDk;
 
-    @Column(name = "masothueKbhq", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "masothue_Kbhq", columnDefinition = "NVARCHAR(255)")
     private String masothueKbhq;
 
-    @Column(name = "tenDoanhnghiep", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ten_Doanhnghiep", columnDefinition = "NVARCHAR(255)")
     private String tenDoanhnghiep;
 
     @Column(name = "sodienthoai", columnDefinition = "NVARCHAR(255)")
     private String sodienthoai;
 
-    @Column(name = "tenDoanhnghiepUythac", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ten_Doanhnghiep_Uythac", columnDefinition = "NVARCHAR(255)")
     private String tenDoanhnghiepUythac;
 
-    @Column(name = "tenDoitacnuocngoai", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ten_Doitacnuocngoai", columnDefinition = "NVARCHAR(255)")
     private String tenDoitacnuocngoai;
 
-    @Column(name = "maquocgiaDoitacnuocngoai", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "maquocgia_Doitacnuocngoai", columnDefinition = "NCHAR(10)")
     private String maquocgiaDoitacnuocngoai;
 
-    @Column(name = "vandon01", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "vandon_01", columnDefinition = "NVARCHAR(255)")
     private String vandon01;
 
-    @Column(name = "vandon02", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "vandon_02", columnDefinition = "NVARCHAR(255)")
     private String vandon02;
 
-    @Column(name = "vandon03", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "vandon_03", columnDefinition = "NVARCHAR(255)")
     private String vandon03;
 
-    @Column(name = "vandon04", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "vandon_04", columnDefinition = "NVARCHAR(255)")
     private String vandon04;
 
-    @Column(name = "vandon05", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "vandon_05", columnDefinition = "NVARCHAR(255)")
     private String vandon05;
 
-    @Column(name = "soluongkienhang", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "soluongkienhang", columnDefinition = "BIGINT")
     private String soluongkienhang;
 
-    @Column(name = "maDvtKienhang", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_Dvt_Kienhang", columnDefinition = "NVARCHAR(255)")
     private String maDvtKienhang;
 
-    @Column(name = "grossweight", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "grossweight", columnDefinition = "DECIMAL(15,3)")
     private String grossweight;
 
-    @Column(name = "maDvtGw", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_Dvt_Gw", columnDefinition = "NVARCHAR(255)")
     private String maDvtGw;
 
-    @Column(name = "soluongContainer", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "soluong_Container", columnDefinition = "BIGINT")
     private String soluongContainer;
 
-    @Column(name = "maDiadiemdohang", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_Diadiemdohang", columnDefinition = "NVARCHAR(255)")
     private String maDiadiemdohang;
 
-    @Column(name = "maDiadiemxephang", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_Diadiemxephang", columnDefinition = "NVARCHAR(255)")
     private String maDiadiemxephang;
 
-    @Column(name = "tenPhuongtienvanchuyen", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ten_Phuongtienvanchuyen", columnDefinition = "NVARCHAR(255)")
     private String tenPhuongtienvanchuyen;
 
-    @Column(name = "ngayHangDen", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ngay_Hang_Den", columnDefinition = "DATE")
     private String ngayHangDen;
 
-    @Column(name = "phuongThucThanhToan", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "phuong_Thuc_Thanh_Toan", columnDefinition = "NVARCHAR(255)")
     private String phuongThucThanhToan;
 
-    @Column(name = "tongTriGiaHoaDon", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "tong_Tri_Gia_Hoa_Don", columnDefinition = "DECIMAL(20,3)")
     private String tongTriGiaHoaDon;
 
-    @Column(name = "tongTriGiaTinhThue", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "tong_Tri_Gia_Tinh_Thue", columnDefinition = "DECIMAL(20,3)")
     private String tongTriGiaTinhThue;
 
-    @Column(name = "tongTienThue", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "tong_Tien_Thue", columnDefinition = "NVARCHAR(255)")
     private String tongTienThue;
 
-    @Column(name = "tongSoDonghang", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "tong_So_Donghang", columnDefinition = "BIGINT")
     private String tongSoDonghang;
 
-    @Column(name = "ngayCapPhep", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ngay_Cap_Phep", columnDefinition = "DATE")
     private String ngayCapPhep;
 
-    @Column(name = "gioCapPhep", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "gio_Cap_Phep", columnDefinition = "TIME(0)")
     private String gioCapPhep;
 
-    @Column(name = "ngayHoanthanhKiemtra", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ngay_Hoanthanh_Kiemtra", columnDefinition = "DATE")
     private String ngayHoanthanhKiemtra;
 
-    @Column(name = "gioHoanthanhKiemtra", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "gio_Hoanthanh_Kiemtra", columnDefinition = "TIME(0)")
     private String gioHoanthanhKiemtra;
 
-    @Column(name = "ngayHuyTk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ngay_Huy_Tk", columnDefinition = "DATE")
     private String ngayHuyTk;
 
-    @Column(name = "gioHuyTk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "gio_Huy_Tk", columnDefinition = "TIME(0)")
     private String gioHuyTk;
 
-    @Column(name = "tenNguoiphutrachKiemtrahoso", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ten_Nguoiphutrach_Kiemtrahoso", columnDefinition = "NVARCHAR(255)")
     private String tenNguoiphutrachKiemtrahoso;
 
-    @Column(name = "tenNguoiphutrachKiemhoa", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ten_Nguoiphutrach_Kiemhoa", columnDefinition = "NVARCHAR(255)")
     private String tenNguoiphutrachKiemhoa;
 
-    @Column(name = "hsCode", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "hs_Code", columnDefinition = "NVARCHAR(255)")
     private String hsCode;
 
-    @Column(name = "moTaHangHoa", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "mo_Ta_Hang_Hoa", columnDefinition = "NVARCHAR(4000)")
     private String moTaHangHoa;
 
-    @Column(name = "soLuongHanghoa", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "so_Luong_Hanghoa", columnDefinition = "DECIMAL(20,3)")
     private String soLuongHanghoa;
 
-    @Column(name = "maDvtHanghoa", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_Dvt_Hanghoa", columnDefinition = "NVARCHAR(255)")
     private String maDvtHanghoa;
 
-    @Column(name = "triGiaHoaDon", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "tri_Gia_Hoa_Don", columnDefinition = "DECIMAL(20,3)")
     private String triGiaHoaDon;
 
-    @Column(name = "dongiaHoadon", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "dongia_Hoadon", columnDefinition = "DECIMAL(20,3)")
     private String dongiaHoadon;
 
-    @Column(name = "maTienteHoadon", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_Tiente_Hoadon", columnDefinition = "NVARCHAR(255)")
     private String maTienteHoadon;
 
-    @Column(name = "donviDongiaTiente", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "donvi_Dongia_Tiente", columnDefinition = "NVARCHAR(255)")
     private String donviDongiaTiente;
 
-    @Column(name = "triGiaTinhThueS", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "tri_Gia_Tinh_Thue_S", columnDefinition = "DECIMAL(20,3)")
     private String triGiaTinhThueS;
 
-    @Column(name = "triGiaTinhThueM", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "tri_Gia_Tinh_Thue_M", columnDefinition = "DECIMAL(20,3)")
     private String triGiaTinhThueM;
 
-    @Column(name = "dongiaTinhthue", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "dongia_Tinhthue", columnDefinition = "DECIMAL(20,3)")
     private String dongiaTinhthue;
 
-    @Column(name = "thuesuatNhapkhau", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "thuesuat_Nhapkhau", columnDefinition = "NVARCHAR(255)")
     private String thuesuatNhapkhau;
 
-    @Column(name = "tienThueNhapkhau", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "tien_Thue_Nhapkhau", columnDefinition = "DECIMAL(20,3)")
     private String tienThueNhapkhau;
 
     @Column(name = "xuatxu", columnDefinition = "NVARCHAR(255)")
     private String xuatxu;
 
-    @Column(name = "maVanbanphapquy", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_Vanbanphapquy", columnDefinition = "NVARCHAR(255)")
     private String maVanbanphapquy;
 
-    @Column(name = "phanloaiGiayphepNk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "phanloai_Giayphep_Nk", columnDefinition = "NVARCHAR(255)")
     private String phanloaiGiayphepNk;
 
-    @Column(name = "maBieuthueNk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_Bieuthue_Nk", columnDefinition = "NVARCHAR(255)")
     private String maBieuthueNk;
 
-    @Column(name = "maMiengiamThue", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_Miengiam_Thue", columnDefinition = "NVARCHAR(255)")
     private String maMiengiamThue;
 
-    @Column(name = "tkid", columnDefinition = "NVARCHAR(255)")
-    private String tkid;
 
-    @Column(name = "sotk", columnDefinition = "NVARCHAR(255)")
-    private String sotk;
-
-    @Column(name = "mahq", columnDefinition = "NVARCHAR(255)")
-    private String mahq;
 
 }
