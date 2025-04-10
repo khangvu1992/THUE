@@ -3,16 +3,12 @@ package com.example.thuedientu.controller;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.service.DatabaseService;
-import com.example.thuedientu.service.ExcellmportService;
 import com.example.thuedientu.service.FileUploadService;
 import com.example.thuedientu.util.FileQueueManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.cache.CacheManager;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;

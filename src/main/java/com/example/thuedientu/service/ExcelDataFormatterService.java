@@ -68,6 +68,13 @@ public class ExcelDataFormatterService {
 //        }
 //    }
 
+    public String trangThaiTK (String input){
+        if(input.trim().equals("--")){
+            return "TQ";
+        }
+        return input;
+    }
+
     public Date parseSqlDate(String input) {
         if (input == null || input.trim().isEmpty()) return null;
         try {

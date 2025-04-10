@@ -37,7 +37,7 @@ public class DatabaseService {
 
     private final JdbcTemplate jdbcTemplate;
     private final int BATCH_SIZE = 20000;
-    private final int WORKER_COUNT = 16;
+    private final int WORKER_COUNT = 1;
 
     @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired private FileRepository fileRepository;
@@ -101,9 +101,9 @@ public class DatabaseService {
     }
 
     public void createTable() {
-        String createTableSQL = "IF OBJECT_ID('dbo.khang_heheJDBC', 'U') IS NULL " +
+        String createTableSQL = "IF OBJECT_ID('dbo.thue_nhap_khau', 'U') IS NULL " +
                 "BEGIN " +
-                "CREATE TABLE dbo.khang_heheJDBC (" +
+                "CREATE TABLE dbo.thue_nhap_khau (" +
                 "tkid BIGINT, sotk NVARCHAR(255), mahq NVARCHAR(255), trangthaitk NVARCHAR(255), " +
                 "bpkthsdt BIGINT,  bptq NVARCHAR(255), ptvc NVARCHAR(255), malh NVARCHAR(255), " +
                 "ngay_Dk DATE, hour_Dk TIME(0), ngay_Thay_doiDk DATE, " +
@@ -134,7 +134,7 @@ public class DatabaseService {
 
 //    @Transactional
     public void insertDataBatch(List<EnityExcelJDBC> batchList) {
-        String insertSQL = "INSERT INTO khang_heheJDBC (tkid, sotk, mahq, trangthaitk, bpkthsdt, bptq, ptvc, malh, " +
+        String insertSQL = "INSERT INTO thue_nhap_khau (tkid, sotk, mahq, trangthaitk, bpkthsdt, bptq, ptvc, malh, " +
                 "ngay_Dk, hour_Dk, ngay_Thay_doiDk, hour_Thay_doi_Dk, masothue_Kbhq, ten_Doanhnghiep, " +
                 "sodienthoai, ten_Doanhnghiep_Uythac, ten_Doitacnuocngoai, maquocgia_Doitacnuocngoai, vandon_01, vandon_02, vandon_03, vandon_04, vandon_05, " +
                 "soluongkienhang, ma_Dvt_Kienhang, grossweight, ma_Dvt_Gw, soluong_Container, ma_Diadiemdohang, " +
@@ -159,7 +159,7 @@ public class DatabaseService {
 //            ps.setLong(1,formatterService.parseLong(e.getTkid()));
             ps.setString(2, e.getSotk());
             ps.setString(3, e.getMahq());
-            ps.setString(4, e.getTrangthaitk());
+            ps.setString(4, formatterService.trangThaiTK(e.getTrangthaitk()));
 
             if (formatterService.parseInteger(e.getBpkthsdt(),1) != null) {
                 ps.setInt(5, formatterService.parseInteger(e.getBpkthsdt(),2) );
