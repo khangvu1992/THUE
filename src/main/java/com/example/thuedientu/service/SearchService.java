@@ -314,7 +314,7 @@ public class SearchService {
             @Override
             public EnityExcelJDBC mapRow(ResultSet rs, int rowNum) throws SQLException {
                 EnityExcelJDBC entity = new EnityExcelJDBC();
-                entity.setTkid(rs.getString("TKID"));
+//                entity.setTkid(rs.getString("TKID"));
                 entity.setSotk(rs.getString("SOTK"));
                 entity.setMahq(rs.getString("MAHQ"));
                 entity.setTrangthaitk(rs.getString("TRANGTHAITK"));

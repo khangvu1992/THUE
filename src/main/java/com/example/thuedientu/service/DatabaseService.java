@@ -39,7 +39,7 @@ public class DatabaseService {
     private final int BATCH_SIZE = 20000;
     private final int WORKER_COUNT = 16;
 
-    @Autowired private insertDataBatchService insertDataBatchService1;
+//    @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired private FileRepository fileRepository;
     @Autowired private mapEntityJDBC map1EntityJDBC;
     @Autowired private FileQueueManager fileQueueManager;
@@ -138,7 +138,7 @@ public class DatabaseService {
 
 //    @Transactional
     public void insertDataBatch(List<EnityExcelJDBC> batchList) {
-        String insertSQL = "INSERT INTO thue_nhap_khau (tkid, sotk, mahq, trangthaitk, bpkthsdt, bptq, ptvc, malh, " +
+        String insertSQL = "INSERT INTO thue_nhap_khau ( sotk, mahq, trangthaitk, bpkthsdt, bptq, ptvc, malh, " +
                 "ngay_Dk, hour_Dk, ngay_Thaydoi_Dk, hour_Thaydoi_Dk, masothue_Kbhq, ten_Doanhnghiep, " +
                 "sodienthoai, ten_Doanhnghiep_Uythac, ten_Doitacnuocngoai, maquocgia_Doitacnuocngoai, vandon_01, vandon_02, vandon_03, vandon_04, vandon_05, " +
                 "soluongkienhang, ma_Dvt_Kienhang, grossweight, ma_Dvt_Gw, soluong_Container, ma_Diadiemdohang, " +
@@ -147,123 +147,123 @@ public class DatabaseService {
                 "gio_Hoanthanh_Kiemtra, ngay_Huy_Tk, gio_Huy_Tk, ten_Nguoiphutrach_Kiemtrahoso, ten_Nguoiphutrach_Kiemhoa, hs_Code, mo_Ta_Hang_Hoa, so_Luong_Hanghoa, " +
                 "ma_Dvt_Hanghoa, tri_Gia_Hoa_Don, dongia_Hoadon, ma_Tiente_Hoadon, donvi_Dongia_Tiente, tri_Gia_Tinh_Thue_S, " +
                 "tri_Gia_Tinh_Thue_M, dongia_Tinhthue, thuesuat_Nhapkhau, tien_Thue_Nhapkhau, xuatxu, ma_Vanbanphapquy, phanloai_Giayphep_Nk, ma_Bieuthue_Nk, ma_Miengiam_Thue ) " +
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 
 
 
         jdbcTemplate.batchUpdate(insertSQL, batchList, batchList.size(), (ps, e) -> {
-            if (formatterService.parseLong(e.getTkid()) != null) {
-                ps.setLong(1, formatterService.parseLong(e.getTkid()));
-            } else {
-                ps.setNull(1, Types.INTEGER);
-            }
+//            if (formatterService.parseLong(e.getTkid()) != null) {
+//                ps.setLong(1, formatterService.parseLong(e.getTkid()));
+//            } else {
+//                ps.setNull(1, Types.INTEGER);
+//            }
 
 
 //            ps.setLong(1,formatterService.parseLong(e.getTkid()));
-            ps.setString(2, e.getSotk());
-            ps.setString(3, e.getMahq());
-            ps.setString(4, formatterService.trangThaiTK(e.getTrangthaitk()));
+            ps.setString(1, e.getSotk());
+            ps.setString(2, e.getMahq());
+            ps.setString(3, formatterService.trangThaiTK(e.getTrangthaitk()));
 
             if (formatterService.parseInteger(e.getBpkthsdt(),1) != null) {
-                ps.setInt(5, formatterService.parseInteger(e.getBpkthsdt(),2) );
+                ps.setInt(4, formatterService.parseInteger(e.getBpkthsdt(),2) );
             } else {
-                ps.setNull(5, Types.INTEGER);
+                ps.setNull(4, Types.INTEGER);
             }
 
-            ps.setString(6, e.getBptq());
+            ps.setString(5, e.getBptq());
 
 
-            ps.setString(7, e.getPtvc());
-            ps.setString(8, e.getMalh());
-            ps.setDate(9, formatterService.parseSqlDate(e.getNgayDk()));
-            ps.setTime(10, formatterService.parseSqlTime(e.getHourDk()) );
-            ps.setDate(11, formatterService.parseSqlDate(e.getNgayThaydoiDk())  );
-            ps.setTime(12, formatterService.parseSqlTime( e.getHourThaydoiDk()) );
-            ps.setString(13, e.getMasothueKbhq());
-            ps.setString(14, e.getTenDoanhnghiep());
-            ps.setString(15, e.getSodienthoai());
-            ps.setString(16, e.getTenDoanhnghiepUythac());
-            ps.setString(17, e.getTenDoitacnuocngoai());
-            ps.setString(18, e.getMaquocgiaDoitacnuocngoai());
-            ps.setString(19, e.getVandon01());
-            ps.setString(20, e.getVandon02());
-            ps.setString(21, e.getVandon03());
-            ps.setString(22, e.getVandon04());
-            ps.setString(23, e.getVandon05());
+            ps.setString(6, e.getPtvc());
+            ps.setString(7, e.getMalh());
+            ps.setDate(8, formatterService.parseSqlDate(e.getNgayDk()));
+            ps.setTime(9, formatterService.parseSqlTime(e.getHourDk()) );
+            ps.setDate(10, formatterService.parseSqlDate(e.getNgayThaydoiDk())  );
+            ps.setTime(11, formatterService.parseSqlTime( e.getHourThaydoiDk()) );
+            ps.setString(12, e.getMasothueKbhq());
+            ps.setString(13, e.getTenDoanhnghiep());
+            ps.setString(14, e.getSodienthoai());
+            ps.setString(15, e.getTenDoanhnghiepUythac());
+            ps.setString(16, e.getTenDoitacnuocngoai());
+            ps.setString(17, e.getMaquocgiaDoitacnuocngoai());
+            ps.setString(18, e.getVandon01());
+            ps.setString(19, e.getVandon02());
+            ps.setString(20, e.getVandon03());
+            ps.setString(21, e.getVandon04());
+            ps.setString(22, e.getVandon05());
 
             if (formatterService.parseInteger( e.getSoluongkienhang(),5) != null) {
-                ps.setInt(24,formatterService.parseInteger( e.getSoluongkienhang(),6));
+                ps.setInt(23,formatterService.parseInteger( e.getSoluongkienhang(),6));
             } else {
-                ps.setNull(24, Types.INTEGER);
+                ps.setNull(23, Types.INTEGER);
             }
 
 
 
-            ps.setString(25, e.getMaDvtKienhang());
+            ps.setString(24, e.getMaDvtKienhang());
             if (formatterService.parseBigDecimal( e.getGrossweight(),26) != null) {
-                ps.setBigDecimal(26, formatterService.parseBigDecimal( e.getGrossweight(),26));
+                ps.setBigDecimal(25, formatterService.parseBigDecimal( e.getGrossweight(),26));
             } else {
-                ps.setNull(26, Types.INTEGER);
+                ps.setNull(25, Types.INTEGER);
             }
 
 
 
 
-            ps.setString(27, e.getMaDvtGw());
+            ps.setString(26, e.getMaDvtGw());
 
             if ( formatterService.parseInteger(e.getSoluongContainer(),7) != null) {
-                ps.setInt(28, formatterService.parseInteger(e.getSoluongContainer(),8));
+                ps.setInt(27, formatterService.parseInteger(e.getSoluongContainer(),8));
             } else {
-                ps.setNull(28, Types.INTEGER);
+                ps.setNull(27, Types.INTEGER);
             }
 
 
 
-            ps.setString(29, e.getMaDiadiemdohang());
-            ps.setString(30, e.getMaDiadiemxephang());
-            ps.setString(31, e.getTenPhuongtienvanchuyen());
-            ps.setDate(32, formatterService.parseSqlDate( e.getNgayHangDen()));
-            ps.setString(33, e.getPhuongThucThanhToan());
-            ps.setBigDecimal(34, formatterService.parseBigDecimal(e.getTongTriGiaHoaDon(),34));
-            ps.setBigDecimal(35, formatterService.parseBigDecimal(e.getTongTriGiaTinhThue(),35));
-            ps.setBigDecimal(36, formatterService.parseBigDecimal(e.getTongTienThue(),36));
+            ps.setString(28, e.getMaDiadiemdohang());
+            ps.setString(29, e.getMaDiadiemxephang());
+            ps.setString(30, e.getTenPhuongtienvanchuyen());
+            ps.setDate(31, formatterService.parseSqlDate( e.getNgayHangDen()));
+            ps.setString(32, e.getPhuongThucThanhToan());
+            ps.setBigDecimal(33, formatterService.parseBigDecimal(e.getTongTriGiaHoaDon(),34));
+            ps.setBigDecimal(34, formatterService.parseBigDecimal(e.getTongTriGiaTinhThue(),35));
+            ps.setBigDecimal(35, formatterService.parseBigDecimal(e.getTongTienThue(),36));
 
             if ( formatterService.parseInteger(e.getTongSoDonghang(),9) != null) {
-                ps.setInt(37, formatterService.parseInteger(e.getTongSoDonghang(),10));
+                ps.setInt(36, formatterService.parseInteger(e.getTongSoDonghang(),10));
             } else {
-                ps.setNull(37, Types.INTEGER);
+                ps.setNull(36, Types.INTEGER);
             }
 
-            ps.setDate(38, formatterService.parseSqlDate(e.getNgayCapPhep()));
-            ps.setTime(39, formatterService.parseSqlTime(e.getGioCapPhep()));
-            ps.setDate(40, formatterService.parseSqlDate(e.getNgayHoanthanhKiemtra()));
-            ps.setTime(41, formatterService.parseSqlTime(e.getGioHoanthanhKiemtra()));
-            ps.setDate(42, formatterService.parseSqlDate(e.getNgayHuyTk()));
-            ps.setTime(43, formatterService.parseSqlTime(e.getGioHuyTk()));
-            ps.setString(44, e.getTenNguoiphutrachKiemtrahoso());
-            ps.setString(45, e.getTenNguoiphutrachKiemhoa());
-            ps.setString(46, e.getHsCode());
-            ps.setString(47, e.getMoTaHangHoa());
+            ps.setDate(37, formatterService.parseSqlDate(e.getNgayCapPhep()));
+            ps.setTime(38, formatterService.parseSqlTime(e.getGioCapPhep()));
+            ps.setDate(39, formatterService.parseSqlDate(e.getNgayHoanthanhKiemtra()));
+            ps.setTime(40, formatterService.parseSqlTime(e.getGioHoanthanhKiemtra()));
+            ps.setDate(41, formatterService.parseSqlDate(e.getNgayHuyTk()));
+            ps.setTime(42, formatterService.parseSqlTime(e.getGioHuyTk()));
+            ps.setString(43, e.getTenNguoiphutrachKiemtrahoso());
+            ps.setString(44, e.getTenNguoiphutrachKiemhoa());
+            ps.setString(45, e.getHsCode());
+            ps.setString(46, e.getMoTaHangHoa());
 
-            ps.setBigDecimal(48, formatterService.parseBigDecimal(e.getSoLuongHanghoa(),12));
+            ps.setBigDecimal(47, formatterService.parseBigDecimal(e.getSoLuongHanghoa(),12));
 
 
-            ps.setString(49, e.getMaDvtHanghoa());
-            ps.setBigDecimal(50, formatterService.parseBigDecimal(e.getTriGiaHoaDon(),50));
-            ps.setBigDecimal(51, formatterService.parseBigDecimal(e.getDongiaHoadon(),55));
-            ps.setString(52, e.getMaTienteHoadon());
-            ps.setString(53, e.getDonviDongiaTiente());
-            ps.setBigDecimal(54, formatterService.parseBigDecimal(e.getTriGiaTinhThueS(),51));
-            ps.setBigDecimal(55, formatterService.parseBigDecimal(e.getTriGiaTinhThueM(),52));
-            ps.setBigDecimal(56, formatterService.parseBigDecimal( e.getDongiaTinhthue(),53));
-            ps.setString(57, e.getThuesuatNhapkhau());
-            ps.setBigDecimal(58, formatterService.parseBigDecimal( e.getTienThueNhapkhau(),54));
-            ps.setString(59, e.getXuatxu());
-            ps.setString(60, e.getMaVanbanphapquy());
-            ps.setString(61, e.getPhanloaiGiayphepNk());
-            ps.setString(62, e.getMaBieuthueNk());
-            ps.setString(63, e.getMaMiengiamThue());
+            ps.setString(48, e.getMaDvtHanghoa());
+            ps.setBigDecimal(49, formatterService.parseBigDecimal(e.getTriGiaHoaDon(),50));
+            ps.setBigDecimal(50, formatterService.parseBigDecimal(e.getDongiaHoadon(),55));
+            ps.setString(51, e.getMaTienteHoadon());
+            ps.setString(52, e.getDonviDongiaTiente());
+            ps.setBigDecimal(53, formatterService.parseBigDecimal(e.getTriGiaTinhThueS(),51));
+            ps.setBigDecimal(54, formatterService.parseBigDecimal(e.getTriGiaTinhThueM(),52));
+            ps.setBigDecimal(55, formatterService.parseBigDecimal( e.getDongiaTinhthue(),53));
+            ps.setString(56, e.getThuesuatNhapkhau());
+            ps.setBigDecimal(57, formatterService.parseBigDecimal( e.getTienThueNhapkhau(),54));
+            ps.setString(58, e.getXuatxu());
+            ps.setString(59, e.getMaVanbanphapquy());
+            ps.setString(60, e.getPhanloaiGiayphepNk());
+            ps.setString(61, e.getMaBieuthueNk());
+            ps.setString(62, e.getMaMiengiamThue());
 
         });
     }

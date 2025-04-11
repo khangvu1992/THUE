@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class EnityExcelJDBC {
 
-    private String tkid;
+//    private String tkid;
     private String sotk;
     private String mahq;
     private String trangthaitk;

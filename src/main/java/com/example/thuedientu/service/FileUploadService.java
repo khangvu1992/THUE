@@ -36,10 +36,11 @@ public class FileUploadService {
         String fileHash = generateFileHash(file);  // Generate hash for the file
 
 //         First check in-memory cache
-        if (uploadedFileHashes.contains(fileHash)) {
-            return true;  // File is duplicate (in-memory check)
-        }
+//        if (uploadedFileHashes.contains(fileHash)) {
+//            return true;  // File is duplicate (in-memory check)
+//        }
 
+        System.out.println("cghhay den day khonrrrrrrrrrrrrrrrrrrrg ban oui");
         // If not found in cache, check the database for duplicates
         List<HashFile> existingFiles = fileRepository.findByFileHash(fileHash);
         if (!existingFiles.isEmpty()) {

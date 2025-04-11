@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class EnityExcelSearchRequest {
-    private String Tkid;
+//    private String Tkid;
     private String Sotk;
     private String Mahq;
     private String trangthaitk;

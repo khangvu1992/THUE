@@ -12,40 +12,40 @@ public class EnityExcel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tkid", columnDefinition = "BIGINT")
-    private String tkid;
+//    @Column(name = "tkid", columnDefinition = "BIGINT")
+//    private String tkid;
 
-    @Column(name = "sotk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "sotk", columnDefinition = "NVARCHAR(255)")// số tờ khai
     private String sotk;
 
-    @Column(name = "mahq", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "mahq", columnDefinition = "NVARCHAR(255)")// mã chi cục hải quan
     private String mahq;
 
-    @Column(name = "trangthaitk", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "trangthaitk", columnDefinition = "NVARCHAR(255)") // mã phân loại trạng thái sau cùng
     private String trangthaitk;
 
-    @Column(name = "bpkthsdt", columnDefinition = "BIGINT")
+    @Column(name = "bpkthsdt", columnDefinition = "BIGINT")// bộ phận kiểm tra hồ sơ đầu tiên
     private String bpkthsdt;
 
-    @Column(name = "bptq", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "bptq", columnDefinition = "NVARCHAR(255)")// bo phận kiểm tra hồ sơ sau cùng
     private String bptq;
 
-    @Column(name = "ptvc", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ptvc", columnDefinition = "NVARCHAR(255)")//phương thức vận chuyển
     private String ptvc;
 
-    @Column(name = "malh", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "malh", columnDefinition = "NVARCHAR(255)")//mã loại hinh
     private String malh;
 
-    @Column(name = "ngay_Dk", columnDefinition = "DATE")
+    @Column(name = "ngay_Dk", columnDefinition = "DATE")// ngày đăng ký
     private String ngayDk;
 
-    @Column(name = "hour_Dk", columnDefinition = "TIME(0)")
+    @Column(name = "hour_Dk", columnDefinition = "TIME(0)")// gờ đăng ký
     private String hourDk;
 
-    @Column(name = "ngay_Thaydoi_Dk", columnDefinition = "DATE")
+    @Column(name = "ngay_Thaydoi_Dk", columnDefinition = "DATE")// ngày thay đổi đăng ký
     private String ngayThaydoiDk;
 
-    @Column(name = "hour_Thaydoi_Dk", columnDefinition = "TIME(0)")
+    @Column(name = "hour_Thaydoi_Dk", columnDefinition = "TIME(0)")//giờ thay đổi đăng ký
     private String hourThaydoiDk;
 
     @Column(name = "masothue_Kbhq", columnDefinition = "NVARCHAR(255)")
