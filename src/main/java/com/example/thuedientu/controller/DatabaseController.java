@@ -42,14 +42,14 @@ public class DatabaseController {
         File tempFile = null;
 
         try {
-            // Kiểm tra xem file có trùng lặp hay không dựa trên hash
-//            if (fileUploadService.checkForDuplicateByContent(file)) {
-//                System.out.println("🔁 Duplicate file detected");
-//                return ResponseEntity.badRequest().body(Map.of(
-//                        "status", "error",
-//                        "message", "Duplicate file detected. Upload canceled."
-//                ));
-//            }
+//             Kiểm tra xem file có trùng lặp hay không dựa trên hash
+            if (fileUploadService.checkForDuplicateByContent(file)) {
+                System.out.println("🔁 Duplicate file detected");
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "Duplicate file detected. Upload canceled."
+                ));
+            }
 
             // Nếu không trùng lặp, lưu tên file vào cơ sở dữ liệu
             HashFile hashFile = new HashFile();
@@ -63,6 +63,10 @@ public class DatabaseController {
                 if (!tempDir.exists()) {
                     tempDir.mkdirs();
                 }
+
+
+
+
 
                 // 2. Tạo file tạm an toàn
                 String fileName = "import_" + System.currentTimeMillis() + ".xlsx";
