@@ -10,7 +10,7 @@ public class EnityExcel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long tkid;
 
 //    @Column(name = "tkid", columnDefinition = "BIGINT")
 //    private String tkid;

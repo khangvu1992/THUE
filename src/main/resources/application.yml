@@ -1,0 +1,11 @@
+#spring:
+#  jpa:
+#    hibernate:
+#      ddl-auto: none  # Ngăn Hibernate tự tạo bảng
+#  flyway:
+#    enabled: true
+#    baseline-on-migrate: true
+#spring:
+#  jpa:
+#    hibernate:
+#      ddl-auto: none
