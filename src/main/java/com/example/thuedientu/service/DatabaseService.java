@@ -39,7 +39,7 @@ public class DatabaseService {
     private final int BATCH_SIZE = 20000;
     private final int WORKER_COUNT = 16;
 
-//    @Autowired private insertDataBatchService insertDataBatchService1;
+    //    @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired private FileRepository fileRepository;
     @Autowired private mapEntityJDBC map1EntityJDBC;
     @Autowired private FileQueueManager fileQueueManager;
@@ -105,7 +105,7 @@ public class DatabaseService {
 
     }
 
-       public void createTableIfNotExists() {
+    public void createTableIfNotExists() {
         String sql = """
             IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='hash_files' AND xtype='U')
             CREATE TABLE hash_files (
@@ -152,7 +152,7 @@ public class DatabaseService {
         jdbcTemplate.execute(createTableSQL);
     }
 
-//    @Transactional
+    //    @Transactional
     public void insertDataBatch(List<EnityExcelJDBC> batchList) {
         String insertSQL = "INSERT INTO thue_nhap_khau ( sotk, mahq, trangthaitk, bpkthsdt, bptq, ptvc, malh, " +
                 "ngay_Dk, hour_Dk, ngay_Thaydoi_Dk, hour_Thaydoi_Dk, masothue_Kbhq, ten_Doanhnghiep, " +
@@ -241,9 +241,30 @@ public class DatabaseService {
             ps.setString(30, e.getTenPhuongtienvanchuyen());
             ps.setDate(31, formatterService.parseSqlDate( e.getNgayHangDen()));
             ps.setString(32, e.getPhuongThucThanhToan());
-            ps.setBigDecimal(33, formatterService.parseBigDecimal(e.getTongTriGiaHoaDon(),34));
-            ps.setBigDecimal(34, formatterService.parseBigDecimal(e.getTongTriGiaTinhThue(),35));
-            ps.setBigDecimal(35, formatterService.parseBigDecimal(e.getTongTienThue(),36));
+
+            if (  formatterService.parseBigDecimal(e.getTongTriGiaHoaDon(),34) != null) {
+                ps.setBigDecimal(33, formatterService.parseBigDecimal(e.getTongTriGiaHoaDon(),34));
+            } else {
+                ps.setNull(33, Types.INTEGER);
+            }
+
+
+            if (  formatterService.parseBigDecimal(e.getTongTriGiaTinhThue(),35) != null) {
+                ps.setBigDecimal(34, formatterService.parseBigDecimal(e.getTongTriGiaTinhThue(),35));
+            } else {
+                ps.setNull(34, Types.INTEGER);
+            }
+
+
+            if (  formatterService.parseBigDecimal(e.getTongTienThue(),36) != null) {
+                ps.setBigDecimal(35, formatterService.parseBigDecimal(e.getTongTienThue(),36));
+
+            } else {
+                ps.setNull(35, Types.INTEGER);
+            }
+
+
+
 
             if ( formatterService.parseInteger(e.getTongSoDonghang(),9) != null) {
                 ps.setInt(36, formatterService.parseInteger(e.getTongSoDonghang(),10));
@@ -262,19 +283,71 @@ public class DatabaseService {
             ps.setString(45, e.getHsCode());
             ps.setString(46, e.getMoTaHangHoa());
 
-            ps.setBigDecimal(47, formatterService.parseBigDecimal(e.getSoLuongHanghoa(),12));
+
+            if ( formatterService.parseBigDecimal(e.getSoLuongHanghoa(),12) != null) {
+                ps.setBigDecimal(47, formatterService.parseBigDecimal(e.getSoLuongHanghoa(),12));
+            } else {
+                ps.setNull(47, Types.INTEGER);
+            }
+
+
+
 
 
             ps.setString(48, e.getMaDvtHanghoa());
-            ps.setBigDecimal(49, formatterService.parseBigDecimal(e.getTriGiaHoaDon(),50));
-            ps.setBigDecimal(50, formatterService.parseBigDecimal(e.getDongiaHoadon(),55));
+
+
+            if (  formatterService.parseBigDecimal(e.getTriGiaHoaDon(),50) != null) {
+                ps.setBigDecimal(49, formatterService.parseBigDecimal(e.getTriGiaHoaDon(),50));
+            } else {
+                ps.setNull(49, Types.INTEGER);
+            }
+
+            if (  formatterService.parseBigDecimal(e.getDongiaHoadon(),55) != null) {
+                ps.setBigDecimal(50, formatterService.parseBigDecimal(e.getDongiaHoadon(),55));
+            } else {
+                ps.setNull(50, Types.INTEGER);
+            }
+
+
+
+
             ps.setString(51, e.getMaTienteHoadon());
             ps.setString(52, e.getDonviDongiaTiente());
-            ps.setBigDecimal(53, formatterService.parseBigDecimal(e.getTriGiaTinhThueS(),51));
-            ps.setBigDecimal(54, formatterService.parseBigDecimal(e.getTriGiaTinhThueM(),52));
-            ps.setBigDecimal(55, formatterService.parseBigDecimal( e.getDongiaTinhthue(),53));
+
+            if (  formatterService.parseBigDecimal(e.getTriGiaTinhThueS(),51) != null) {
+                ps.setBigDecimal(53, formatterService.parseBigDecimal(e.getTriGiaTinhThueS(),51));
+            } else {
+                ps.setNull(53, Types.INTEGER);
+            }
+
+            if (  formatterService.parseBigDecimal(e.getTriGiaTinhThueM(),54) != null) {
+                ps.setBigDecimal(54, formatterService.parseBigDecimal(e.getTriGiaTinhThueM(),54));
+            } else {
+                ps.setNull(54, Types.INTEGER);
+            }
+
+
+            if (  formatterService.parseBigDecimal( e.getDongiaTinhthue(),53) != null) {
+                ps.setBigDecimal(55, formatterService.parseBigDecimal( e.getDongiaTinhthue(),53));
+            } else {
+                ps.setNull(55, Types.INTEGER);
+            }
+
+
+
             ps.setString(56, e.getThuesuatNhapkhau());
-            ps.setBigDecimal(57, formatterService.parseBigDecimal( e.getTienThueNhapkhau(),54));
+
+
+            if (  formatterService.parseBigDecimal( e.getTienThueNhapkhau(),54) != null) {
+                ps.setBigDecimal(57, formatterService.parseBigDecimal( e.getTienThueNhapkhau(),54));
+            } else {
+                ps.setNull(57, Types.INTEGER);
+            }
+
+
+
+
             ps.setString(58, e.getXuatxu());
             ps.setString(59, e.getMaVanbanphapquy());
             ps.setString(60, e.getPhanloaiGiayphepNk());
