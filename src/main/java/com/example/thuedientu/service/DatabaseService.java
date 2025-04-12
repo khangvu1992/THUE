@@ -36,8 +36,8 @@ public class DatabaseService {
     private ExcelDataFormatterService formatterService;
 
     private final JdbcTemplate jdbcTemplate;
-    private final int BATCH_SIZE = 20000;
-    private final int WORKER_COUNT = 16;
+    private final int BATCH_SIZE = 5000;
+    private final int WORKER_COUNT = 4;
 
     //    @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired private FileRepository fileRepository;
