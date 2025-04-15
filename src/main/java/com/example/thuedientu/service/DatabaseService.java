@@ -76,7 +76,7 @@ public class DatabaseService {
 
         while (true) {
             try {
-                List<EnityExcelJDBC> batch = queue.poll(3, TimeUnit.SECONDS);
+                List<EnityExcelJDBC> batch = queue.poll(5, TimeUnit.SECONDS);
                 if (batch == null) {
                     if (fileQueueManager.isReadingDone(fileId)) break;
                     else continue;
