@@ -3,10 +3,7 @@ package com.example.thuedientu.service;
 import com.example.thuedientu.model.EnityExcelJDBC;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.repository.FileRepository;
-import com.example.thuedientu.util.FileContext;
-import com.example.thuedientu.util.FileQueueManager;
-import com.example.thuedientu.util.ProgressWebSocketSender;
-import com.example.thuedientu.util.mapEntityJDBC;
+import com.example.thuedientu.util.*;
 import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +33,13 @@ public class DatabaseService {
     private ExcelDataFormatterService formatterService;
 
     private final JdbcTemplate jdbcTemplate;
-    private final int BATCH_SIZE = 20000;
-    private final int WORKER_COUNT = 16;
+    private final int BATCH_SIZE = 5000;
+    private final int WORKER_COUNT = 4;
 
     //    @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired private FileRepository fileRepository;
+    @Autowired private ExcelProcessingService excelProcessingService;
+
     @Autowired private mapEntityJDBC map1EntityJDBC;
     @Autowired private FileQueueManager fileQueueManager;
     @Autowired
@@ -59,7 +58,8 @@ public class DatabaseService {
         fileQueueManager.createContext(fileId, 50, filename);
 
         for (int i = 0; i < WORKER_COUNT; i++) {
-            new Thread(() -> workerWriteToDb(fileId,filename), "worker-" + i + "-" + fileId).start();
+            new Thread(() -> workerWriteToDb(fileId,filename), "worker-" + i + "-" + filename).start();
+            System.out.println("worker-" + i + "-" + fileId);
         }
 
         readExcelAndEnqueue(file, fileId,filename);
@@ -358,6 +358,11 @@ public class DatabaseService {
     }
 
     private void readExcelAndEnqueue(File file, String fileId,String filename) {
+
+        // 1. Đếm tổng số dòng (trừ header nếu cần)
+//        int totalRows = excelProcessingService.countTotalRows(file);
+
+
         try (InputStream is = new FileInputStream(file);
              Workbook workbook = StreamingReader.builder()
                      .rowCacheSize(100)
