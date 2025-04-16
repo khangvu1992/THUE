@@ -82,6 +82,7 @@ public class DatabaseController {
 
 
                 importQueueService.enqueueFile(safeTempFile, hashFile);
+                importQueueService.printQueueStatus();
 
 
                 // 3. Import dữ liệu từ file Excel

@@ -53,7 +53,7 @@ public class FileImportQueueService {
 
                     //xoa file khoi hang doi
 
-                    importQueue.remove(file);
+//                    importQueue.remove(file);
 
                 } catch (Exception e) {
                     System.err.println("❌ Lỗi khi import file " +  ": " + e.getMessage());
@@ -68,6 +68,17 @@ public class FileImportQueueService {
         FileWithHash fileNew= new FileWithHash(file,hashFile);
         importQueue.add(fileNew);
         System.out.println("📦 File added to queue: " + file.getName());
+    }
+
+    public void printQueueStatus() {
+        System.out.println("📂 Danh sách file trong hàng đợi:");
+        if (importQueue.isEmpty()) {
+            System.out.println("🚫 Hàng đợi rỗng.");
+        } else {
+            for (FileWithHash file : importQueue) {
+                System.out.println("🕒 Đang chờ: " + file.getHashFile().getFilename() + " | Hash: " + file.getHashFile().getFileHash());
+            }
+        }
     }
 
 

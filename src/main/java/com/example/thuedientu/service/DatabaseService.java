@@ -388,7 +388,7 @@ public class DatabaseService {
                 }
 
                 if (count % 10000 == 0) {
-                    fileQueueManager.logWaitingFiles();
+//                    fileQueueManager.logWaitingFiles();
                     int progress = (int) count*100 / 1048576 ;
 
                     progressWebSocketSender.sendProgress1(fileId,filename, progress,false);
