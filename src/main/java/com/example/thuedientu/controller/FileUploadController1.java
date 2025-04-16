@@ -49,6 +49,9 @@ public class FileUploadController1 {
 
             //them hash file
 
+
+            
+
             HashFile hashFile = new HashFile();
             hashFile.setFilename(multipartFile.getOriginalFilename());
             hashFile.setFileHash(fileUploadService.generateFileHash(multipartFile));
