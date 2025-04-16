@@ -13,7 +13,7 @@ public class AsyncConfig {
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(8); // số thread cơ bản
-        executor.setMaxPoolSize(16); // tối đa
+        executor.setMaxPoolSize(200); // tối đa
         executor.setQueueCapacity(100); // hàng đợi
         executor.setThreadNamePrefix("AsyncThread-");
         executor.initialize();
