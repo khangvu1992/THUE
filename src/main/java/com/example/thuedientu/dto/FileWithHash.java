@@ -28,4 +28,15 @@ public class FileWithHash {
     public void setHashFile(HashFile hashFile) {
         this.hashFile = hashFile;
     }
+
+    // So sánh theo hash
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof FileWithHash)) return false;
+        FileWithHash other = (FileWithHash) obj;
+        return this.hashFile.getFileHash().equals(other.hashFile.getFileHash());
+    }
+
+
 }

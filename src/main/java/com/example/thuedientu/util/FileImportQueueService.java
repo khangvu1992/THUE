@@ -7,6 +7,7 @@ import com.example.thuedientu.service.FileUploadService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.util.concurrent.BlockingQueue;
@@ -80,6 +81,20 @@ public class FileImportQueueService {
             }
         }
     }
+    public boolean removeFileFromQueue(String hash) {
+        for (FileWithHash file : importQueue) {
+            if (file.getHashFile().getFileHash().equals(hash)) {
+                boolean removed = importQueue.remove(file);
+                if (removed) {
+                    System.out.println("🗑️ Đã xóa file khỏi hàng đợi: " + file.getFile().getName());
+                }
+                return removed;
+            }
+        }
+        System.out.println("⚠️ Không tìm thấy file với hash: " + hash);
+        return false;
+    }
+
 
 
 }
