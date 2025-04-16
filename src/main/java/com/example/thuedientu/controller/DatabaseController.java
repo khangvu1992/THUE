@@ -4,6 +4,7 @@ import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.service.DatabaseService;
 import com.example.thuedientu.service.FileUploadService;
+import com.example.thuedientu.util.FileImportQueueService;
 import com.example.thuedientu.util.FileQueueManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,9 @@ public class DatabaseController {
     private FileRepository fileRepository;
 
     @Autowired
+    private FileImportQueueService importQueueService;
+
+    @Autowired
     private FileUploadService fileUploadService;
 
     @Autowired
@@ -44,13 +48,13 @@ public class DatabaseController {
 
         try {
 //             Kiểm tra xem file có trùng lặp hay không dựa trên hash
-            if (fileUploadService.checkForDuplicateByContent(file)) {
-                System.out.println("🔁 Duplicate file detected");
-                return ResponseEntity.badRequest().body(Map.of(
-                        "status", "error",
-                        "message", "Duplicate file detected. Upload canceled."
-                ));
-            }
+//            if (fileUploadService.checkForDuplicateByContent(file)) {
+//                System.out.println("🔁 Duplicate file detected");
+//                return ResponseEntity.badRequest().body(Map.of(
+//                        "status", "error",
+//                        "message", "Duplicate file detected. Upload canceled."
+//                ));
+//            }
 
             // Nếu không trùng lặp, lưu tên file vào cơ sở dữ liệu
             HashFile hashFile = new HashFile();
@@ -76,8 +80,12 @@ public class DatabaseController {
 
                 System.out.println("📁 File saved at: " + safeTempFile.getAbsolutePath());
 
+
+                importQueueService.enqueueFile(safeTempFile, hashFile);
+
+
                 // 3. Import dữ liệu từ file Excel
-                excelImportService.import1Datbase1JDBC1(safeTempFile, hashFile);
+//                excelImportService.import1Datbase1JDBC1(safeTempFile, hashFile);
 
                 System.out.println("✅ Import finished successfully.");
                 return ResponseEntity.ok(Map.of(

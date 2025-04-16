@@ -1,5 +1,6 @@
 package com.example.thuedientu.util;
 
+import com.example.thuedientu.dto.FileWithHash;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.service.DatabaseService;
 import com.example.thuedientu.service.FileUploadService;
@@ -29,27 +30,33 @@ public class FileImportQueueService {
     @Autowired
     private FileUploadService fileUploadService;
 
-    private final BlockingQueue<File> importQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<FileWithHash> importQueue = new LinkedBlockingQueue<>();
     private final ExecutorService executor = Executors.newSingleThreadExecutor(); // Đảm bảo tuần tự
+
+
 
     @PostConstruct
     public void startImportWorker() {
         executor.submit(() -> {
             while (true) {
-                File file = importQueue.take(); // Chờ lấy file tiếp theo
+                FileWithHash file = importQueue.take(); // Chờ lấy file tiếp theo
 
 
                 try {
-                    System.out.println("📥 Importing file: " + file.getName());
+                    System.out.println("📥 Importing file: " + file.getFile());
                     // Gọi xử lý Excel tại đây
-                    excelImportService1.import1Datbase1JDBC1(file, null);
+                    excelImportService1.import1Datbase1JDBC1(file.getFile(), file.getHashFile());
 
 
                     // Xóa file sau khi import xong
-                    file.delete();
-                    System.out.println("✅ Done: " + file.getName());
+                    System.out.println("✅ Done: " + file.getFile());
+
+                    //xoa file khoi hang doi
+
+                    importQueue.remove(file);
+
                 } catch (Exception e) {
-                    System.err.println("❌ Lỗi khi import file " + file.getName() + ": " + e.getMessage());
+                    System.err.println("❌ Lỗi khi import file " +  ": " + e.getMessage());
                 }
             }
         });
@@ -57,14 +64,12 @@ public class FileImportQueueService {
 
 
 
-    public void enqueueFile(File file) {
-        importQueue.add(file);
+    public void enqueueFile(File file, HashFile hashFile) {
+        FileWithHash fileNew= new FileWithHash(file,hashFile);
+        importQueue.add(fileNew);
         System.out.println("📦 File added to queue: " + file.getName());
     }
 
-    private void importFile(File file) throws Exception {
-        // TODO: logic import Excel vào DB tại đây
-        Thread.sleep(3000); // Giả lập xử lý lâu
-    }
+
 }
 

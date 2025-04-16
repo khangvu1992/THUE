@@ -49,7 +49,6 @@ public class DatabaseService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Async
     public void import1Datbase1JDBC1(File file, HashFile hashFile) {
         String fileId = hashFile.getFileHash();
         String filename = hashFile.getFilename();
