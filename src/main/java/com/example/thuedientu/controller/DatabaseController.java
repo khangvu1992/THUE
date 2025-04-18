@@ -48,13 +48,13 @@ public class DatabaseController {
 
         try {
 //             Kiểm tra xem file có trùng lặp hay không dựa trên hash
-//            if (fileUploadService.checkForDuplicateByContent(file)) {
-//                System.out.println("🔁 Duplicate file detected");
-//                return ResponseEntity.badRequest().body(Map.of(
-//                        "status", "error",
-//                        "message", "Duplicate file detected. Upload canceled."
-//                ));
-//            }
+            if (fileUploadService.checkForDuplicateByContent(file)) {
+                System.out.println("🔁 Duplicate file detected");
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "Duplicate file detected. Upload canceled."
+                ));
+            }
 
             // Nếu không trùng lặp, lưu tên file vào cơ sở dữ liệu
             HashFile hashFile = new HashFile();
