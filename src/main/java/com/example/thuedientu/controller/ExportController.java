@@ -1,6 +1,8 @@
 package com.example.thuedientu.controller;
 
+import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.service.ExportImportService;
+import com.example.thuedientu.service.FileUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.Map;
 
 
 @RestController
@@ -18,6 +21,9 @@ public class ExportController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+
+    @Autowired
+    FileUploadService fileUploadService;
 
     @Autowired
     ExportImportService exportImportService;
@@ -31,12 +37,43 @@ public class ExportController {
 
                 createTable();
 
+//            Kiểm tra xem file có trùng lặp hay không dựa trên hash
+            if (fileUploadService.checkForDuplicateByContent(file)) {
+                System.out.println("🔁 Duplicate file detected");
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "Duplicate file detected. Upload canceled."
+                ));
+            }
+
+            // Nếu không trùng lặp, lưu tên file vào cơ sở dữ liệu
+            HashFile hashFile = new HashFile();
+            hashFile.setFilename(file.getOriginalFilename());
+            hashFile.setFileHash(fileUploadService.generateFileHash(file));
 
 
-            File temp = File.createTempFile("import-", ".xlsx");
-            file.transferTo(temp);
+            // 1. Tạo thư mục tạm nếu chưa tồn tại
+            String tempDirPath = "C:\\excel-export-temp\\";
+            File tempDir = new File(tempDirPath);
+            if (!tempDir.exists()) {
+                tempDir.mkdirs();
+            }
 
-            exportImportService.importExcelFile(temp);
+            // 2. Tạo file tạm an toàn
+            String fileName = "export_" + System.currentTimeMillis() + ".xlsx";
+            File safeTempFile = new File(tempDir, fileName);
+            file.transferTo(safeTempFile);
+
+            //  excelImportService.import1Datbase1JDBC1(safeTempFile, hashFile);
+
+
+
+
+
+//            File temp = File.createTempFile("import-", ".xlsx");
+//            file.transferTo(temp);
+
+            exportImportService.importExcelFile(safeTempFile, hashFile);
             return ResponseEntity.ok("Import thành công!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

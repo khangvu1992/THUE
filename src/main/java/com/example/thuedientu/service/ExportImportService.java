@@ -1,7 +1,10 @@
 package com.example.thuedientu.service;
 
 import com.example.thuedientu.model.ExportEntity;
+import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.repository.ExportRepository;
+import com.example.thuedientu.repository.FileRepository;
+import com.example.thuedientu.util.ProgressWebSocketSender;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -23,13 +26,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExportImportService {
 
+    @Autowired private FileRepository fileRepository;
+
+
+    @Autowired
+    ProgressWebSocketSender progressWebSocketSender;
+
     @Autowired
     private ExcelDataFormatterService formatterService;
 
     private final ExportRepository exportRepository;
 
     @Transactional(rollbackFor = Exception.class)
-    public void importExcelFile(File file) {
+    public void importExcelFile(File file, HashFile hashFile) {
         List<ExportEntity> entities = new ArrayList<>();
 
         try (InputStream is = new FileInputStream(file);
@@ -40,9 +49,18 @@ public class ExportImportService {
 
             Sheet sheet = workbook.getSheetAt(0);
             int rowIndex = 0;
-
+            int count=0;
             for (Row row : sheet) {
                 if (rowIndex++ == 0) continue; // Bỏ qua header
+                count++;
+                if (count % 10000 == 0) {
+//                    fileQueueManager.logWaitingFiles();
+                    int progress = (int) count*100 / 1048576 ;
+
+                    progressWebSocketSender.sendProgress1(hashFile.getFileHash(),hashFile.getFilename(), progress,false);
+
+//                    System.out.println("Progress: " + count);
+                }
 
                 try {
                     ExportEntity entity = mapRowToEntity(row);
@@ -54,6 +72,12 @@ public class ExportImportService {
 
             // Save toàn bộ - rollback nếu có lỗi
             exportRepository.saveAll(entities);
+            file.delete();
+            fileRepository.save(hashFile);
+            progressWebSocketSender.sendProgress1(hashFile.getFileHash(),hashFile.getFilename(), 100,true);
+            System.out.println("✅ ✅ ✅ ✅ ✅  Đã import 1 file xuất khẩu xong.");
+
+
 
         } catch (IOException e) {
             throw new RuntimeException("Không thể đọc file Excel: " + e.getMessage(), e);
