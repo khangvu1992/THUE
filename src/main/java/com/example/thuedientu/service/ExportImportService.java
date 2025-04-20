@@ -74,8 +74,11 @@ public class ExportImportService {
             exportRepository.saveAll(entities);
             file.delete();
             fileRepository.save(hashFile);
+            entities.clear();
+            System.gc();
             progressWebSocketSender.sendProgress1(hashFile.getFileHash(),hashFile.getFilename(), 100,true);
             System.out.println("✅ ✅ ✅ ✅ ✅  Đã import 1 file xuất khẩu xong.");
+
 
 
 
@@ -105,14 +108,14 @@ public class ExportImportService {
         entity.setSoVanDon(getCellValue(row.getCell(15)));
         entity.setSoLuong(formatterService.parseBigDecimal(getCellValue(row.getCell(16)),1));
         entity.setMaDonViTinh(getCellValue(row.getCell(17)));
-        entity.setTongTrongLuongHangGross(formatterService.parseBigDecimal(getCellValue(row.getCell(18)),1));
+        entity.setTongTrongLuongHangGross(formatterService.parseBigDecimal(getCellValue(row.getCell(18)),2));
         entity.setMaDonViTinhTrongLuongGross(getCellValue(row.getCell(19)));
         entity.setMaDiaDiemNhanHangCuoiCung(getCellValue(row.getCell(20)));
         entity.setMaDiaDiemXepHang(getCellValue(row.getCell(21)));
-        entity.setTongTriGiaHoaDon(formatterService.parseBigDecimal(getCellValue(row.getCell(22)),1));
-        entity.setTongTriGiaTinhThue(formatterService.parseBigDecimal(getCellValue(row.getCell(23)),1));
-        entity.setTongSoTienThueXuatKhau(formatterService.parseBigDecimal(getCellValue(row.getCell(24)),1));
-        entity.setTongSoDongHangCuaToKhai(formatterService.parseBigDecimal(getCellValue(row.getCell(25)),1));
+        entity.setTongTriGiaHoaDon(formatterService.parseBigDecimal(getCellValue(row.getCell(22)),3));
+        entity.setTongTriGiaTinhThue(formatterService.parseBigDecimal(getCellValue(row.getCell(23)),4));
+        entity.setTongSoTienThueXuatKhau(formatterService.parseBigDecimal(getCellValue(row.getCell(24)),5));
+        entity.setTongSoDongHangCuaToKhai(formatterService.parseBigDecimal(getCellValue(row.getCell(25)),6));
         entity.setPhanGhiChu(getCellValue(row.getCell(26)));
         entity.setNgayHoanThanhKiemTra( formatterService.parseSqlDate( getCellValue(row.getCell(27))) );
         entity.setGioHoanThanhKiemTra(formatterService.parseSqlTime(getCellValue(row.getCell(28))));
@@ -122,16 +125,16 @@ public class ExportImportService {
         entity.setTenNguoiPhuTrachKiemHoa(getCellValue(row.getCell(32)));
         entity.setMaSoHangHoa(getCellValue(row.getCell(33)));
         entity.setMoTaHangHoa(getCellValue(row.getCell(34)));
-        entity.setSoLuong1(formatterService.parseBigDecimal(getCellValue(row.getCell(35)),1));
-        entity.setTriGiaHoaDon(formatterService.parseBigDecimal(getCellValue(row.getCell(25)),1));
-        entity.setDonGiaHoaDon(formatterService.parseBigDecimal(getCellValue(row.getCell(37)),1));
+        entity.setSoLuong1(formatterService.parseBigDecimal(getCellValue(row.getCell(35)),7));
+        entity.setTriGiaHoaDon(formatterService.parseBigDecimal(getCellValue(row.getCell(25)),8));
+        entity.setDonGiaHoaDon(formatterService.parseBigDecimal(getCellValue(row.getCell(37)),9));
         entity.setMaDongTienDonGiaHoaDon(getCellValue(row.getCell(38)));
-        entity.setTriGiaTinhThueS(formatterService.parseBigDecimal(getCellValue(row.getCell(39)),1));
-        entity.setTriGiaTinhThueM(formatterService.parseBigDecimal(getCellValue(row.getCell(40)),1));
-        entity.setDonGiaTinhThue(formatterService.parseBigDecimal(getCellValue(row.getCell(41)),1));
+        entity.setTriGiaTinhThueS(formatterService.parseBigDecimal(getCellValue(row.getCell(39)),10));
+        entity.setTriGiaTinhThueM(formatterService.parseBigDecimal(getCellValue(row.getCell(40)),11));
+        entity.setDonGiaTinhThue(formatterService.parseBigDecimal(getCellValue(row.getCell(41)),12));
         entity.setThueSuatThueXuatKhau(getCellValue(row.getCell(42)));
         entity.setPhanLoaiNhapThueSuatThueXuatKhau(getCellValue(row.getCell(43)));
-        entity.setSoTienThueXuatKhau(formatterService.parseBigDecimal(getCellValue(row.getCell(42)),1));
+        entity.setSoTienThueXuatKhau(formatterService.parseBigDecimal(getCellValue(row.getCell(44)),13));
         entity.setMaVanBanPhapQuyKhac1(getCellValue(row.getCell(45)));
         entity.setMaMienGiamKhongChiuThueXuatKhau(getCellValue(row.getCell(46)));
 
