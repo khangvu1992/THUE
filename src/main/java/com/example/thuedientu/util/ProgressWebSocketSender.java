@@ -15,17 +15,6 @@ public class ProgressWebSocketSender {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public void sendProgress(String fileId, String fileName, int processed, int totalBatches, boolean done, String error) {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("fileId", fileId);
-        payload.put("fileName", fileName);
-        payload.put("processed", processed);
-        payload.put("queueSize", totalBatches);
-        payload.put("done", done);
-        payload.put("error", error);
-
-        messagingTemplate.convertAndSend("/topic/progress", payload);
-    }
 
 
 

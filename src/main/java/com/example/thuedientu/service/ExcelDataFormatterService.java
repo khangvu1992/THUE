@@ -58,15 +58,7 @@ public class ExcelDataFormatterService {
         }
     }
 
-//    public Integer parseInteger(String input) {
-//        if (input == null || input.trim().isEmpty()) return null;
-//        try {
-//            return Integer.parseInt(input.trim());
-//        } catch (NumberFormatException e) {
-//            System.err.println("Invalid Integer: " + input);
-//            return null;
-//        }
-//    }
+
 
     public String trangThaiTK (String input){
         if(input.trim().equals("--")){
