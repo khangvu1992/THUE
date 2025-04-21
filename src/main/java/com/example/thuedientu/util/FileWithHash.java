@@ -1,4 +1,4 @@
-package com.example.thuedientu.dto;
+package com.example.thuedientu.util;
 
 import com.example.thuedientu.model.HashFile;
 

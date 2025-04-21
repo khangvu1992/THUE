@@ -1,13 +1,11 @@
 package com.example.thuedientu.util;
 
-import com.example.thuedientu.dto.FileWithHash;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.service.DatabaseService;
 import com.example.thuedientu.service.FileUploadService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.util.concurrent.BlockingQueue;
