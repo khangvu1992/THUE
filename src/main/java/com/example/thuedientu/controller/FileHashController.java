@@ -12,7 +12,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/files")
 @CrossOrigin(origins = "*")
-public class FileController {
+public class FileHashController {
 
     @Autowired
     private FileRepository fileRepository;

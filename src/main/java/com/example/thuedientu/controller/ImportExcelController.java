@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @RestController
 @RequestMapping("/api/excel1_jdbc")
 @CrossOrigin(origins = "*")
-public class DatabaseController {
+public class ImportExcelController {
 
 
     @Autowired

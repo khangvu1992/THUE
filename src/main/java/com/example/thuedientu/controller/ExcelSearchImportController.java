@@ -14,7 +14,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/excel_search")
 @CrossOrigin(origins = "*")
-public class ExcelSearchController {
+public class ExcelSearchImportController {
 
     @Autowired
     private ExcellSearchService excellSearchService;

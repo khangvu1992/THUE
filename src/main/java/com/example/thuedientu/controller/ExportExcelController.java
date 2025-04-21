@@ -17,7 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/export")
 @CrossOrigin(origins = "*")
-public class ExportController {
+public class ExportExcelController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
