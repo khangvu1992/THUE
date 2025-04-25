@@ -25,7 +25,7 @@ public class DynamicControler {
         this.excelImportService = excelImportService;
     }
 
-    @PostMapping("/import-dynamic")
+    @PostMapping("/import-dynamic3333")
     public ResponseEntity<?> importDynamicExcel(
             @RequestParam("file") MultipartFile file,
             @RequestParam("tableInfo") String tableInfoJson
