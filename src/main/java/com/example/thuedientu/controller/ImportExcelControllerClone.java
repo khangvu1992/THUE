@@ -44,7 +44,8 @@ public class ImportExcelControllerClone {
         fileQueueManager.addPendingFile(file.getOriginalFilename());
 
         File tempFile = null;
-        excelImportService.createTableIfNotExists();
+//        excelImportService.createTableIfNotExists(); nham lan
+
 
         try {
 //             Kiểm tra xem file có trùng lặp hay không dựa trên hash
