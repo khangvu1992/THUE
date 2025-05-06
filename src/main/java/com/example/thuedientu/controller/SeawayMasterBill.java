@@ -4,9 +4,8 @@ import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.service.DatabaseService;
 import com.example.thuedientu.service.FileUploadService;
-import com.example.thuedientu.util.FileImportQueueService;
-import com.example.thuedientu.util.FileImportQueueServiceClone;
 import com.example.thuedientu.util.FileQueueManager;
+import com.example.thuedientu.util.SeawayMasterQueueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,7 @@ public class SeawayMasterBill {
     private FileRepository fileRepository;
 
     @Autowired
-    private FileImportQueueServiceClone importQueueService;
+    private SeawayMasterQueueService importQueueService;
 
     @Autowired
     private FileUploadService fileUploadService;
@@ -44,7 +43,7 @@ public class SeawayMasterBill {
         fileQueueManager.addPendingFile(file.getOriginalFilename());
 
         File tempFile = null;
-        excelImportService.createTableIfNotExists();
+//        excelImportService.createTableIfNotExists();
 
         try {
 //             Kiểm tra xem file có trùng lặp hay không dựa trên hash
