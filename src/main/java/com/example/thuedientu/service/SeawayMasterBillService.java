@@ -103,18 +103,18 @@ public class SeawayMasterBillService {
 
     }
 
-//    public void createTableIfNotExists() {
-//        String sql = """
-//            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='hash_files' AND xtype='U')
-//            CREATE TABLE hash_files (
-//                id BIGINT IDENTITY(1,1) PRIMARY KEY,
-//                filename NVARCHAR(255) NOT NULL,
-//                file_hash NVARCHAR(255) NOT NULL
-//            );
-//        """;
-//
-//        jdbcTemplate.execute(sql);
-//    }
+    public void createTableIfNotExists() {
+        String sql = """
+            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='hash_files' AND xtype='U')
+            CREATE TABLE hash_files (
+                id BIGINT IDENTITY(1,1) PRIMARY KEY,
+                filename NVARCHAR(255) NOT NULL,
+                file_hash NVARCHAR(255) NOT NULL
+            );
+        """;
+
+        jdbcTemplate.execute(sql);
+    }
 
 
     public void createTable() {
@@ -142,10 +142,10 @@ public class SeawayMasterBillService {
                 "ContNumber NVARCHAR(255), " +
                 "ContSealNumber NVARCHAR(225), " +
                 "GoodDescription NVARCHAR(4000), " +
-                "CangXepHangGoc NVARCHAR(255), " +
-                "CangXepHang NVARCHAR(255), " +
-                "CangDoHang NVARCHAR(255), " +
-                "CangDich NVARCHAR(255), " +
+                "CangXepHangGoc NVARCHAR(500), " +
+                "CangXepHang NVARCHAR(500), " +
+                "CangDoHang NVARCHAR(500), " +
+                "CangDich NVARCHAR(500), " +
                 "TenCangDich NVARCHAR(500), " +
                 "DiaDiemDoHang NVARCHAR(500), " +
                 "NetWeight DECIMAL(20,3), " +
