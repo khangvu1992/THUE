@@ -11,8 +11,8 @@ public class MapEntityAirHouseContext {
     private ExcelDataFormatterService formatterService;
 
     public void mapCsvRowToEntity(String[] tokens, AirHouseBillEntity entity) {
-        if (tokens.length < 21) {
-            throw new IllegalArgumentException("Insufficient tokens. Expected at least 21 fields, got: " + tokens.length);
+        if (tokens.length < 20) {
+            throw new IllegalArgumentException("Insufficient tokens. Expected at least 20 fields, got: " + tokens.length);
         }
 
         entity.setIdChuyenBay(getSafe(tokens, 0));
