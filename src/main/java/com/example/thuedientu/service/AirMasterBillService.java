@@ -34,9 +34,9 @@ public class AirMasterBillService {
     private ExcelProcessingService excelProcessingService;
 
     @Autowired
-    private MapEntitySeawayHouseContext mapEntitySeawayHouseContext;
+    private MapEntityAirMasterContext mapEntityAirMasterContext;
     @Autowired
-    private SeawayHouseQueueManager fileQueueManager;
+    private AirMasterQueueManager fileQueueManager;
     @Autowired
     private ProgressWebSocketSender progressWebSocketSender;
 
@@ -66,11 +66,11 @@ public class AirMasterBillService {
     }
 
     private void workerWriteToDb(String fileId, String filename) {
-        BlockingQueue<List<SeawayHouseBillEntity>> queue = fileQueueManager.getQueue(fileId);
+        BlockingQueue<List<AirMasterBillEntity>> queue = fileQueueManager.getQueue(fileId);
 
         while (true) {
             try {
-                List<SeawayHouseBillEntity> batch = queue.poll(5, TimeUnit.SECONDS);
+                List<AirMasterBillEntity> batch = queue.poll(5, TimeUnit.SECONDS);
                 if (batch == null) {
                     if (fileQueueManager.isReadingDone(fileId)) break;
                     else continue;
@@ -119,7 +119,7 @@ public class AirMasterBillService {
             CREATE TABLE air_master_bill (
                 id BIGINT IDENTITY PRIMARY KEY,
                 IDCHUYENBAY NVARCHAR(255),
-                FLIGHTDATE DATETIME,
+                FLIGHTDATE SMALLDATETIME,
                 CARRIER NVARCHAR(255),
                 FLIGHTNO NVARCHAR(255),
                 ORIGIN NVARCHAR(255),
@@ -129,7 +129,7 @@ public class AirMasterBillService {
                 M_TENNGUOINHAN NVARCHAR(1000),
                 M_MOTAHANGHOA NVARCHAR(4000),
                 M_SOKIEN INT,
-                M_GROSSWEIGHT FLOAT,
+                M_GROSSWEIGHT DECIMAL(20,3),
                 M_SANBAYDI NVARCHAR(255),
                 M_SANBAYDEN NVARCHAR(255),
                 M_VERSION NVARCHAR(100),
@@ -138,7 +138,7 @@ public class AirMasterBillService {
                 H_TENNGUOIGUI NVARCHAR(1000),
                 H_TENNGUOINHAN NVARCHAR(1000),
                 H_SOKIEN INT,
-                H_TRONGLUONG FLOAT,
+                H_TRONGLUONG DECIMAL(20,3),
                 H_NOIDI NVARCHAR(255),
                 H_NOIDEN NVARCHAR(255),
                 H_MOTAHANGHOA NVARCHAR(4000)
@@ -178,7 +178,7 @@ public class AirMasterBillService {
                 "H_NOIDI, " +
                 "H_NOIDEN, " +
                 "H_MOTAHANGHOA" +
-                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         jdbcTemplate.batchUpdate(insertSQL, batchList, batchList.size(), (ps, e) -> {
             ps.setString(1, e.getIdChuyenBay());
@@ -209,102 +209,11 @@ public class AirMasterBillService {
     }
 
 
-//    private void readExcelAndEnqueue(File file, String fileId,String filename) {
-//
-//        // 1. Đếm tổng số dòng (trừ header nếu cần)
-////        int totalRows = excelProcessingService.countTotalRows(file);
-//
-//
-//        try (InputStream is = new FileInputStream(file);
-//             Workbook workbook = StreamingReader.builder()
-//                     .rowCacheSize(100)
-//                     .bufferSize(4096)
-//                     .open(is)) {
-//
-//            Sheet sheet = workbook.getSheetAt(0);
-//            Iterator<Row> rows = sheet.iterator();
-//            if (rows.hasNext()) rows.next(); // skip header
-//
-//            List<SeawayMasterBillEntity> batch = new ArrayList<>();
-//            int count = 0;
-//
-//            while (rows.hasNext()) {
-//                Row row = rows.next();
-//                SeawayMasterBillEntity entity = new SeawayMasterBillEntity();
-//                mapEntitySeawayMasterContext.mapRowToEntity(row, entity);
-//                batch.add(entity);
-//                count++;
-//
-//                if (batch.size() >= BATCH_SIZE) {
-//                    fileQueueManager.getQueue(fileId).put(new ArrayList<>(batch));
-//                    batch.clear();
-//                }
-//
-//                if (count % 10000 == 0) {
-////                    fileQueueManager.logWaitingFiles();
-//                    int progress = (int) count*100 / 1048576 ;
-//
-//                    progressWebSocketSender.sendProgress1(fileId,filename, progress,false);
-//
-
-    /// /                    System.out.println("Progress: " + count);
-//                }
-//            }
-//
-//            if (!batch.isEmpty()) {
-//                fileQueueManager.getQueue(fileId).put(batch);
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-//
-//    private void readCsvAndEnqueue(File file, String fileId, String filename) {
-//        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-//            String line;
-//            boolean skipHeader = true;
-//            List<SeawayMasterBillEntity> batch = new ArrayList<>();
-//            int count = 0;
-//
-//            while ((line = reader.readLine()) != null) {
-//                if (skipHeader) {
-//                    skipHeader = false;
-//                    continue; // Bỏ qua header
-//                }
-//
-//                String[] tokens = line.split(",", -1); // tách cột, giữ giá trị rỗng nếu có
-//
-//                SeawayMasterBillEntity entity = new SeawayMasterBillEntity();
-//                mapEntitySeawayMasterContext.mapCsvRowToEntity(tokens, entity); // bạn phải viết hàm này tương tự mapRowToEntity
-//                batch.add(entity);
-//                count++;
-//
-//                if (batch.size() >= BATCH_SIZE) {
-//                    fileQueueManager.getQueue(fileId).put(new ArrayList<>(batch));
-//                    batch.clear();
-//                }
-//
-//                if (count % 10000 == 0) {
-//                    int progress = (int) (count * 100L / 1048576); // giả sử tổng 1,048,576 dòng
-//                    progressWebSocketSender.sendProgress1(fileId, filename, progress, false);
-//                }
-//            }
-//
-//            if (!batch.isEmpty()) {
-//                fileQueueManager.getQueue(fileId).put(batch);
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
     private void readCsvAndEnqueue(File file, String fileId, String filename) {
         try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
             String[] tokens;
             boolean skipHeader = true;
-            List<SeawayHouseBillEntity> batch = new ArrayList<>();
+            List<AirMasterBillEntity> batch = new ArrayList<>();
             int count = 0;
 
             while ((tokens = csvReader.readNext()) != null) {
@@ -313,8 +222,8 @@ public class AirMasterBillService {
                     continue; // Bỏ qua header
                 }
 
-                SeawayHouseBillEntity entity = new SeawayHouseBillEntity();
-                mapEntitySeawayHouseContext.mapCsvRowToEntity(tokens, entity);
+                AirMasterBillEntity entity = new AirMasterBillEntity();
+                mapEntityAirMasterContext.mapCsvRowToEntity(tokens, entity);
                 batch.add(entity);
                 count++;
 

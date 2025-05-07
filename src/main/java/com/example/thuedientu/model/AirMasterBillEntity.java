@@ -3,6 +3,7 @@ package com.example.thuedientu.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity
@@ -48,7 +49,7 @@ public class AirMasterBillEntity {
     private Integer mSoKien;
 
     @Column(name = "M_GROSSWEIGHT")
-    private Double mGrossWeight;
+    private BigDecimal mGrossWeight;
 
     @Column(name = "M_SANBAYDI")
     private String mSanBayDi;
@@ -75,7 +76,7 @@ public class AirMasterBillEntity {
     private Integer hSoKien;
 
     @Column(name = "H_TRONGLUONG")
-    private Double hTrongLuong;
+    private BigDecimal hTrongLuong;
 
     @Column(name = "H_NOIDI")
     private String hNoiDi;

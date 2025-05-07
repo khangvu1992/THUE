@@ -37,7 +37,7 @@ public class AirMasterQueueService {
                     System.out.println("📥 Đang import file: " + file.getAbsolutePath());
 
                     // Gọi hàm xử lý import Excel
-                    airMasterBillService.importToDatabase(file, hashFile);
+                    airMasterBillService.import1Datbase1JDBC1(file, hashFile);
 
                     // Sau khi xử lý xong, có thể xoá file tạm (nếu cần)
                     System.out.println("✅ Hoàn tất import: " + file.getName());

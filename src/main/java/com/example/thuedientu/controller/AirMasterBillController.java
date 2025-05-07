@@ -44,13 +44,13 @@ public class AirMasterBillController {
 
         try {
             // Kiểm tra trùng lặp nội dung file bằng hash
-            if (fileUploadService.checkForDuplicateByContent(file)) {
-                System.out.println("🔁 Duplicate file detected");
-                return ResponseEntity.badRequest().body(Map.of(
-                        "status", "error",
-                        "message", "Tệp tin đã tồn tại. Hủy tải lên."
-                ));
-            }
+//            if (fileUploadService.checkForDuplicateByContent(file)) {
+//                System.out.println("🔁 Duplicate file detected");
+//                return ResponseEntity.badRequest().body(Map.of(
+//                        "status", "error",
+//                        "message", "Tệp tin đã tồn tại. Hủy tải lên."
+//                ));
+//            }
 
             // Lưu thông tin hash file
             HashFile hashFile = new HashFile();
