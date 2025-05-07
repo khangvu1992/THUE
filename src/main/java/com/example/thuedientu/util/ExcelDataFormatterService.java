@@ -18,6 +18,9 @@ import java.time.format.DateTimeParseException;
 @Service
 public class ExcelDataFormatterService {
     private static final String[] TIMESTAMP_PATTERNS = {
+            "MM/dd/yyyy HH:mm",   // Định dạng ngày giờ kiểu: 04/16/2025 19:30
+            "yyyy-MM-dd HH:mm:ss", // Định dạng chuẩn khác: 2025-04-16 19:30:00
+            "MM/dd/yyyy hh:mm a",  // Định dạng với AM/PM
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd'T'HH:mm:ss",
             "dd/MM/yyyy HH:mm:ss",
@@ -112,21 +115,23 @@ public class ExcelDataFormatterService {
         }
     }
 
-    public Timestamp parseSqlTimestamp(String input) {
+    public static Timestamp parseSqlTimestamp(String input) {
         if (input == null || input.trim().isEmpty()) {
             return null;
         }
 
         for (String pattern : TIMESTAMP_PATTERNS) {
             try {
+                // Sử dụng SimpleDateFormat để phân tích ngày giờ
                 SimpleDateFormat sdf = new SimpleDateFormat(pattern);
                 sdf.setLenient(false);
                 return new Timestamp(sdf.parse(input.trim()).getTime());
             } catch (ParseException e) {
-                // Try next format
+                // Nếu gặp lỗi, thử với định dạng tiếp theo
             }
         }
 
+        // Nếu không thể phân tích ngày giờ, ném ra ngoại lệ
         throw new IllegalArgumentException("Invalid timestamp format: " + input);
     }
 }
