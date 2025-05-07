@@ -36,7 +36,7 @@ public class SeawayMasterBillService {
     @Autowired private FileRepository fileRepository;
     @Autowired private ExcelProcessingService excelProcessingService;
 
-    @Autowired private mapEntityJDBCClone map1EntityJDBC;
+    @Autowired private mapEntitySeawayMasterContext mapEntitySeawayMasterContext;
     @Autowired private SeawayMasterQueueManager fileQueueManager;
     @Autowired
     private ProgressWebSocketSender progressWebSocketSender;
@@ -67,11 +67,11 @@ public class SeawayMasterBillService {
     }
 
     private void workerWriteToDb(String fileId,String filename) {
-        BlockingQueue<List<ExportEntity>> queue = fileQueueManager.getQueue(fileId);
+        BlockingQueue<List<SeawayMasterBillEntity>> queue = fileQueueManager.getQueue(fileId);
 
         while (true) {
             try {
-                List<ExportEntity> batch = queue.poll(5, TimeUnit.SECONDS);
+                List<SeawayMasterBillEntity> batch = queue.poll(5, TimeUnit.SECONDS);
                 if (batch == null) {
                     if (fileQueueManager.isReadingDone(fileId)) break;
                     else continue;
@@ -200,28 +200,28 @@ public class SeawayMasterBillService {
             ps.setString(5, e.getCangTiepNhan());
             ps.setTimestamp(6, e.getNgayGui());
             ps.setString(7, e.getTenTau());
-            ps.setString(8, e.getTenTau());
-            ps.setString(9, e.getSoIMO());
-            ps.setString(10, e.getHangTau());
-            ps.setTimestamp(11, e.getNgayTauDenRoi());
-            ps.setTimestamp(12, e.getNgayDenRoi());
-            ps.setString(13, e.getCangRoiCuoiCungCangDich());
-            ps.setString(14, e.getConsignee());
-            ps.setString(15, e.getConsigner());
-            ps.setString(16, e.getSoVanDon());
-            ps.setBigDecimal(17, e.getSoLuong());
-            ps.setString(18, e.getMaDonViTinh());
-            ps.setBigDecimal(19, e.getTongTrongLuongHangGross());
-            ps.setString(20, e.getMaDonViTinhTrongLuongGross());
-            ps.setString(21, e.getMaDiaDiemNhanHangCuoiCung());
-            ps.setString(22, e.getMaDiaDiemXepHang());
-            ps.setBigDecimal(23, e.getTongTriGiaHoaDon());
-            ps.setBigDecimal(24, e.getTongTriGiaTinhThue());
-            ps.setBigDecimal(25, e.getTongSoTienThueXuatKhau());
-            ps.setBigDecimal(26, e.getTongSoDongHangCuaToKhai());
-            ps.setString(27, e.getPhanGhiChu());
-            ps.setDate(28, e.getNgayHoanThanhKiemTra());
-            ps.setTime(29, e.getGioHoanThanhKiemTra());
+            ps.setString(8, e.getSoIMO());
+            ps.setString(9, e.getHangTau());
+            ps.setTimestamp(10, e.getNgayTauDenRoi());
+            ps.setTimestamp(11, e.getNgayDenRoi());
+            ps.setString(12, e.getCangRoiCuoiCungCangDich());
+            ps.setString(13, e.getConsignee());
+            ps.setString(14, e.getConsigner());
+            ps.setString(15, e.getNotificatedParty());
+            ps.setString(16, e.getNotificatedParty2());
+            ps.setString(17, e.getMasterBillNo());
+            ps.setString(18, e.getContNumber());
+            ps.setString(19, e.getContSealNumber());
+            ps.setString(20, e.getGoodDescription());
+            ps.setString(21, e.getCangXepHangGoc());
+            ps.setString(22, e.getCangXepHang());
+            ps.setString(23, e.getCangDoHang());
+            ps.setString(24, e.getCangDich());
+            ps.setString(25, e.getTenCangDich());
+            ps.setString(26, e.getDiaDiemDoHang());
+            ps.setBigDecimal(27, e.getNetWeight());
+            ps.setBigDecimal(28, e.getGrossWeight());
+            ps.setBigDecimal(29, e.getDemension());
 
         });
     }
@@ -242,13 +242,13 @@ public class SeawayMasterBillService {
             Iterator<Row> rows = sheet.iterator();
             if (rows.hasNext()) rows.next(); // skip header
 
-            List<ExportEntity> batch = new ArrayList<>();
+            List<SeawayMasterBillEntity> batch = new ArrayList<>();
             int count = 0;
 
             while (rows.hasNext()) {
                 Row row = rows.next();
-                ExportEntity entity = new ExportEntity();
-                map1EntityJDBC.mapRowToEntity(row, entity);
+                SeawayMasterBillEntity entity = new SeawayMasterBillEntity();
+                mapEntitySeawayMasterContext.mapRowToEntity(row, entity);
                 batch.add(entity);
                 count++;
 

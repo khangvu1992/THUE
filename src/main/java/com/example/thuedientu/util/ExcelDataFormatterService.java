@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -14,6 +17,13 @@ import java.time.format.DateTimeParseException;
 
 @Service
 public class ExcelDataFormatterService {
+    private static final String[] TIMESTAMP_PATTERNS = {
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "dd/MM/yyyy HH:mm:ss",
+            "dd-MM-yyyy HH:mm:ss",
+            "yyyyMMddHHmmss"
+    };
     private static final Logger logger = LoggerFactory.getLogger(ExcelDataFormatterService.class);
 
 
@@ -100,5 +110,23 @@ public class ExcelDataFormatterService {
         } catch (NumberFormatException ex) {
             return false;
         }
+    }
+
+    public Timestamp parseSqlTimestamp(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return null;
+        }
+
+        for (String pattern : TIMESTAMP_PATTERNS) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+                sdf.setLenient(false);
+                return new Timestamp(sdf.parse(input.trim()).getTime());
+            } catch (ParseException e) {
+                // Try next format
+            }
+        }
+
+        throw new IllegalArgumentException("Invalid timestamp format: " + input);
     }
 }
