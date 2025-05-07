@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/SeawayMasterBill")
 @CrossOrigin(origins = "*")
-public class SeawayMasterBill {
+public class SeawayMasterBillController {
 
 
     @Autowired
