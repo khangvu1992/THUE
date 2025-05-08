@@ -122,15 +122,15 @@ public class SeawayMasterBillService {
                 "BEGIN " +
                 "CREATE TABLE seaway_master_bill (" +
                 "id BIGINT IDENTITY PRIMARY KEY, " +
-                "SoKhaiBao NVARCHAR(255), " +
-                "SoHoSo NVARCHAR(255), " +
-                "LoaiHoSo NVARCHAR(255), " +
+                "SoKhaiBao NVARCHAR(4000), " +
+                "SoHoSo NVARCHAR(4000), " +
+                "LoaiHoSo NVARCHAR(4000), " +
                 "ArrivalDate SMALLDATETIME, " +
                 "CangTiepNhan NVARCHAR(500), " +
                 "NgayGui SMALLDATETIME, " +
                 "TenTau NVARCHAR(500), " +
-                "SoIMO NVARCHAR(255), " +
-                "HangTau NVARCHAR(255), " +
+                "SoIMO NVARCHAR(4000), " +
+                "HangTau NVARCHAR(4000), " +
                 "NgayTauDenRoi SMALLDATETIME, " +
                 "NgayDenRoi SMALLDATETIME, " +
                 "CangRoiCuoiCungCangDich NVARCHAR(255), " +
@@ -138,16 +138,16 @@ public class SeawayMasterBillService {
                 "Consigner NVARCHAR(4000), " +
                 "NotificatedParty NVARCHAR(4000), " +
                 "NotificatedParty2 NVARCHAR(4000), " +
-                "MasterBillNo NVARCHAR(225), " +
-                "ContNumber NVARCHAR(255), " +
+                "MasterBillNo NVARCHAR(4000), " +
+                "ContNumber NVARCHAR(4000), " +
                 "ContSealNumber NVARCHAR(225), " +
                 "GoodDescription NVARCHAR(4000), " +
-                "CangXepHangGoc NVARCHAR(500), " +
-                "CangXepHang NVARCHAR(500), " +
-                "CangDoHang NVARCHAR(500), " +
-                "CangDich NVARCHAR(500), " +
-                "TenCangDich NVARCHAR(500), " +
-                "DiaDiemDoHang NVARCHAR(500), " +
+                "CangXepHangGoc NVARCHAR(4000), " +
+                "CangXepHang NVARCHAR(4000), " +
+                "CangDoHang NVARCHAR(4000), " +
+                "CangDich NVARCHAR(4000), " +
+                "TenCangDich NVARCHAR(4000), " +
+                "DiaDiemDoHang NVARCHAR(4000), " +
                 "NetWeight DECIMAL(20,3), " +
                 "GrossWeight DECIMAL(20,3),  " +
                 "Demension DECIMAL(20,3), " +

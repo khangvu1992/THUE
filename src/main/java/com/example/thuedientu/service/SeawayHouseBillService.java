@@ -120,14 +120,14 @@ public class SeawayHouseBillService {
                 "SoHoSo NVARCHAR(255), " +
                 "LoaiHoSo NVARCHAR(255), " +
                 "ArrivalDate SMALLDATETIME, " +
-                "CangTiepNhan NVARCHAR(500), " +
+                "CangTiepNhan NVARCHAR(4000), " +
                 "NgayGui SMALLDATETIME, " +
-                "TenTau NVARCHAR(500), " +
-                "SoIMO NVARCHAR(255), " +
-                "HangTau NVARCHAR(255), " +
+                "TenTau NVARCHAR(4000), " +
+                "SoIMO NVARCHAR(4000), " +
+                "HangTau NVARCHAR(4000), " +
                 "NgayTauDenRoi SMALLDATETIME, " +
                 "NgayDenRoi SMALLDATETIME, " +
-                "CangRoiCuoiCungCangDich NVARCHAR(255), " +
+                "CangRoiCuoiCungCangDich NVARCHAR(4000), " +
                 "BillNumber NVARCHAR(255), " +
                 "HB_Consigner NVARCHAR(4000), " +
                 "HB_Consignee NVARCHAR(4000), " +
@@ -135,16 +135,16 @@ public class SeawayHouseBillService {
                 "HB_NotificatedParty2 NVARCHAR(4000), " +
                 "DateOfBill SMALLDATETIME, " +
                 "DepartureDate SMALLDATETIME, " +
-                "PortNameOfTranship NVARCHAR(500), " +
-                "PortNameOfDestination NVARCHAR(500), " +
-                "PortNameOfLoad NVARCHAR(500), " +
-                "PortNameOfUnload NVARCHAR(500), " +
-                "PlaceOfDelivery NVARCHAR(500), " +
+                "PortNameOfTranship NVARCHAR(4000), " +
+                "PortNameOfDestination NVARCHAR(4000), " +
+                "PortNameOfLoad NVARCHAR(4000), " +
+                "PortNameOfUnload NVARCHAR(4000), " +
+                "PlaceOfDelivery NVARCHAR(4000), " +
                 "MoTaHangHoa NVARCHAR(4000), " +
-                "ContNumber NVARCHAR(255), " +
-                "ContSealNumber NVARCHAR(255), " +
+                "ContNumber NVARCHAR(4000), " +
+                "ContSealNumber NVARCHAR(4000), " +
                 "NumberOfPackage BIGINT, " +
-                "CargoType NVARCHAR(255) " +
+                "CargoType NVARCHAR(4000) " +
                 ") " +
                 "END";
 
