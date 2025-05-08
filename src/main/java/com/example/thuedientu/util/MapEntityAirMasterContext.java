@@ -16,7 +16,7 @@ public class MapEntityAirMasterContext {
         }
 
         entity.setIdChuyenBay(getSafe(tokens, 0));
-        entity.setFlightDate(formatterService.parseSqlTimestamp(getSafe(tokens, 1)));
+        entity.setFlightDate(formatterService.parseSqlTimestamp(getSafe(tokens, 1),tokens));
         entity.setCarrier(getSafe(tokens, 2));
         entity.setFlightNo(getSafe(tokens, 3));
         entity.setOrigin(getSafe(tokens, 4));

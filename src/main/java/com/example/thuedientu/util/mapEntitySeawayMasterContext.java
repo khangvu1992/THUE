@@ -68,14 +68,14 @@ public class mapEntitySeawayMasterContext {
         entity.setSoKhaiBao(getString(tokens, 0));
         entity.setSoHoSo(getString(tokens, 1));
         entity.setLoaiHoSo(getString(tokens, 2));
-        entity.setArrivalDate(formatterService.parseSqlTimestamp(getString(tokens, 3)));
+        entity.setArrivalDate(formatterService.parseSqlTimestamp(getString(tokens, 3),tokens));
         entity.setCangTiepNhan(getString(tokens, 4));
-        entity.setNgayGui(formatterService.parseSqlTimestamp(getString(tokens, 5)));
+        entity.setNgayGui(formatterService.parseSqlTimestamp(getString(tokens, 5),tokens));
         entity.setTenTau(getString(tokens, 6));
         entity.setSoIMO(getString(tokens, 7));
         entity.setHangTau(getString(tokens, 8));
-        entity.setNgayTauDenRoi(formatterService.parseSqlTimestamp(getString(tokens, 9)));
-        entity.setNgayDenRoi(formatterService.parseSqlTimestamp(getString(tokens, 10)));
+        entity.setNgayTauDenRoi(formatterService.parseSqlTimestamp(getString(tokens, 9),tokens));
+        entity.setNgayDenRoi(formatterService.parseSqlTimestamp(getString(tokens, 10),tokens));
         entity.setCangRoiCuoiCungCangDich(getString(tokens, 11));
         entity.setConsignee(getString(tokens, 12));
         entity.setConsigner(getString(tokens, 13));

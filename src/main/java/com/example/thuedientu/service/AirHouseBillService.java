@@ -211,7 +211,14 @@ public class AirHouseBillService {
 
 
                 AirHouseBillEntity entity = new AirHouseBillEntity();
-                mapEntityAirHouseContext.mapCsvRowToEntity(tokens, entity);
+
+                try{
+                    mapEntityAirHouseContext.mapCsvRowToEntity(tokens, entity);
+
+
+                } catch (Exception e) {
+                    System.err.println("Lỗi dòng: " + tokens.toString());
+                }
                 batch.add(entity);
                 count++;
 

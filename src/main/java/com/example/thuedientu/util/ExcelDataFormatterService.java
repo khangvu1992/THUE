@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 
 @Service
 public class ExcelDataFormatterService {
@@ -115,7 +116,7 @@ public class ExcelDataFormatterService {
         }
     }
 
-    public static Timestamp parseSqlTimestamp(String input) {
+    public static Timestamp parseSqlTimestamp(String input,String[] i) {
         if (input == null || input.trim().isEmpty()) {
             return null;
         }
@@ -132,6 +133,8 @@ public class ExcelDataFormatterService {
         }
 
         // Nếu không thể phân tích ngày giờ, ném ra ngoại lệ
-        throw new IllegalArgumentException("Invalid timestamp format: " + input);
+        throw new IllegalArgumentException("Invalid timestamp format: " + input+"--------------------"+ Arrays.toString(i));
+
+
     }
 }
