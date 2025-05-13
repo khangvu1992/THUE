@@ -35,11 +35,7 @@ public class AirMasterBillService extends csvService<AirMasterBillEntity> {
     @Autowired
     private ExcelProcessingService excelProcessingService;
 
-    @Autowired
-    private MapEntityAirMasterContext mapEntityAirMasterContext;
-    @Autowired
-    private AirMasterQueueManager fileQueueManager;
-    @Autowired
+
     private ProgressWebSocketSender progressWebSocketSender;
 
     public AirMasterBillService(JdbcTemplate jdbcTemplate) {
@@ -133,6 +129,7 @@ public class AirMasterBillService extends csvService<AirMasterBillEntity> {
         String fileId= (String) entity;
         String filename= (String) e2;
         int percent= (int) e3;
+        System.out.println(fileId+filename+percent);
         progressWebSocketSender.sendProgress1(fileId, filename, percent, false);
 
     }
