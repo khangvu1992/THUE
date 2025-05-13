@@ -1,11 +1,13 @@
 package com.example.thuedientu.service;
 
 import com.example.thuedientu.model.HashFile;
+import com.example.thuedientu.model.SeawayHouseBillEntity;
 import com.example.thuedientu.model.SeawayMasterBillEntity;
 import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.util.*;
 import com.monitorjbl.xlsx.StreamingReader;
 import com.opencsv.CSVReader;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,7 +25,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class SeawayMasterBillService {
+public class SeawayMasterBillService extends csvService<SeawayMasterBillEntity> {
 
     @Autowired
     private ExcelDataFormatterService formatterService;
@@ -49,25 +51,24 @@ public class SeawayMasterBillService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void import1Datbase1JDBC1(File file, HashFile hashFile) {
-        String fileId = hashFile.getFileHash();
-        String filename = hashFile.getFilename();
-        fileQueueManager.removePendingFile(filename);
-        createTable();
-        fileQueueManager.createContext(fileId, 50, filename);
 
-        for (int i = 0; i < WORKER_COUNT; i++) {
-            new Thread(() -> workerWriteToDb(fileId, filename), "worker-" + i + "-" + filename).start();
-            System.out.println("worker-" + i + "-" + fileId);
+
+    @Override
+    public SeawayMasterBillEntity createEntity() {
+        return new  SeawayMasterBillEntity();
+    }
+
+    @Override
+    public <T> void insertDataBatch(List<T> batch) {
+        // Kiểm tra nếu batch là danh sách SeawayHouseBillEntity
+        if (batch != null && !batch.isEmpty() && batch.get(0) instanceof SeawayMasterBillEntity) {
+            // Chuyển kiểu về List<SeawayHouseBillEntity> an toàn
+            List<SeawayMasterBillEntity> castedBatch = (List<SeawayMasterBillEntity>) batch;
+            insertDataBatch1(castedBatch);  // Gọi phương thức đã triển khai
+        } else {
+            throw new IllegalArgumentException("Invalid batch type. Expected List<SeawayMasterBillEntity>");
         }
 
-        readCsvAndEnqueue(file, fileId, filename);
-
-        fileQueueManager.markReadingDone(fileId);
-
-        file.delete();
-        fileRepository.save(hashFile);
-        System.out.println("🧹 Xoá file tạm: " + file.getAbsolutePath());
     }
 
     private void workerWriteToDb(String fileId, String filename) {
@@ -157,8 +158,43 @@ public class SeawayMasterBillService {
         jdbcTemplate.execute(sql);
     }
 
+    @Override
+    public <T> void fileRepositorySave(T entity) {      // Kiểm tra nếu entity là một đối tượng hợp lệ để lưu
+        if (entity instanceof HashFile) {
+            HashFile hashFile = (HashFile) entity;
+            fileRepository.save(hashFile);  // Lưu hashFile vào repository
+        } else {
+            throw new IllegalArgumentException("Entity phải là đối tượng HashFile.");
+        }
+
+
+    }
+
+    @Override
+    public <T, U, V, L> void progressWebSocketSenderSendProgress1(T entity, U e2, V e3, L e4) {
+        String fileId= (String) entity;
+        String filename= (String) e2;
+        int percent= (int) e3;
+        progressWebSocketSender.sendProgress1(fileId, filename, percent, false);
+
+    }
+
+    @Override
+    public <T, V> void mapCsvRowToEntity(T record, V entity) {
+        if (record instanceof CSVRecord && entity instanceof SeawayMasterBillEntity) {
+            CSVRecord csvRecord = (CSVRecord) record;
+            SeawayMasterBillEntity seawayMasterBillEntity = (SeawayMasterBillEntity) entity;
+
+            // Gọi phương thức mapCsvRowToEntity từ mapEntitySeawayHouseContext để chuyển đổi dữ liệu
+            mapEntitySeawayMasterContext.mapCsvRowToEntity(csvRecord, seawayMasterBillEntity);
+        } else {
+            throw new IllegalArgumentException("record phải là CSVRecord và entity phải là SeawayHouseBillEntity.");
+        }
+
+    }
+
     //    @Transactional
-    public void insertDataBatch(List<SeawayMasterBillEntity> batchList) {
+    public void insertDataBatch1(List<SeawayMasterBillEntity> batchList) {
         String insertSQL = "INSERT INTO seaway_house_bill( " +
                 "SoKhaiBao, " +
                 "SoHoSo, " +
@@ -227,134 +263,5 @@ public class SeawayMasterBillService {
         });
     }
 
-//    private void readExcelAndEnqueue(File file, String fileId,String filename) {
-//
-//        // 1. Đếm tổng số dòng (trừ header nếu cần)
-////        int totalRows = excelProcessingService.countTotalRows(file);
-//
-//
-//        try (InputStream is = new FileInputStream(file);
-//             Workbook workbook = StreamingReader.builder()
-//                     .rowCacheSize(100)
-//                     .bufferSize(4096)
-//                     .open(is)) {
-//
-//            Sheet sheet = workbook.getSheetAt(0);
-//            Iterator<Row> rows = sheet.iterator();
-//            if (rows.hasNext()) rows.next(); // skip header
-//
-//            List<SeawayMasterBillEntity> batch = new ArrayList<>();
-//            int count = 0;
-//
-//            while (rows.hasNext()) {
-//                Row row = rows.next();
-//                SeawayMasterBillEntity entity = new SeawayMasterBillEntity();
-//                mapEntitySeawayMasterContext.mapRowToEntity(row, entity);
-//                batch.add(entity);
-//                count++;
-//
-//                if (batch.size() >= BATCH_SIZE) {
-//                    fileQueueManager.getQueue(fileId).put(new ArrayList<>(batch));
-//                    batch.clear();
-//                }
-//
-//                if (count % 10000 == 0) {
-////                    fileQueueManager.logWaitingFiles();
-//                    int progress = (int) count*100 / 1048576 ;
-//
-//                    progressWebSocketSender.sendProgress1(fileId,filename, progress,false);
-//
 
-    /// /                    System.out.println("Progress: " + count);
-//                }
-//            }
-//
-//            if (!batch.isEmpty()) {
-//                fileQueueManager.getQueue(fileId).put(batch);
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-//
-//    private void readCsvAndEnqueue(File file, String fileId, String filename) {
-//        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-//            String line;
-//            boolean skipHeader = true;
-//            List<SeawayMasterBillEntity> batch = new ArrayList<>();
-//            int count = 0;
-//
-//            while ((line = reader.readLine()) != null) {
-//                if (skipHeader) {
-//                    skipHeader = false;
-//                    continue; // Bỏ qua header
-//                }
-//
-//                String[] tokens = line.split(",", -1); // tách cột, giữ giá trị rỗng nếu có
-//
-//                SeawayMasterBillEntity entity = new SeawayMasterBillEntity();
-//                mapEntitySeawayMasterContext.mapCsvRowToEntity(tokens, entity); // bạn phải viết hàm này tương tự mapRowToEntity
-//                batch.add(entity);
-//                count++;
-//
-//                if (batch.size() >= BATCH_SIZE) {
-//                    fileQueueManager.getQueue(fileId).put(new ArrayList<>(batch));
-//                    batch.clear();
-//                }
-//
-//                if (count % 10000 == 0) {
-//                    int progress = (int) (count * 100L / 1048576); // giả sử tổng 1,048,576 dòng
-//                    progressWebSocketSender.sendProgress1(fileId, filename, progress, false);
-//                }
-//            }
-//
-//            if (!batch.isEmpty()) {
-//                fileQueueManager.getQueue(fileId).put(batch);
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-    private void readCsvAndEnqueue(File file, String fileId, String filename) {
-        try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
-            String[] tokens;
-            boolean skipHeader = true;
-            List<SeawayMasterBillEntity> batch = new ArrayList<>();
-            int count = 0;
-
-            while ((tokens = csvReader.readNext()) != null) {
-                if (skipHeader) {
-                    skipHeader = false;
-                    continue; // Bỏ qua header
-                }
-
-                SeawayMasterBillEntity entity = new SeawayMasterBillEntity();
-                mapEntitySeawayMasterContext.mapCsvRowToEntity(tokens, entity);
-                batch.add(entity);
-                count++;
-
-                if (batch.size() >= BATCH_SIZE) {
-                    fileQueueManager.getQueue(fileId).put(new ArrayList<>(batch));
-                    batch.clear();
-                }
-
-                if (count % 10000 == 0) {
-                    int progress = (int) (count * 100L / 1048576); // giả sử 1,048,576 dòng
-                    progressWebSocketSender.sendProgress1(fileId, filename, progress, false);
-                }
-            }
-
-            if (!batch.isEmpty()) {
-                fileQueueManager.getQueue(fileId).put(batch);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-    }
 }

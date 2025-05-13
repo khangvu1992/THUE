@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
-public abstract  class csvService {
+public abstract  class csvService<B> {
 
     private final int BATCH_SIZE = 5000;
     private final int WORKER_COUNT = 4;
@@ -30,7 +30,7 @@ public abstract  class csvService {
         String filename = hashFile.getFilename();
         createTable(); // Tạo bảng nếu chưa có
 
-        BlockingQueue<List<SeawayHouseBillEntity>> queue = new LinkedBlockingQueue<>(100);
+        BlockingQueue<List<B>> queue = new LinkedBlockingQueue<>(100);
         AtomicBoolean readingDone = new AtomicBoolean(false);
         AtomicInteger totalProcessed = new AtomicInteger(0);
 
@@ -39,7 +39,7 @@ public abstract  class csvService {
             new Thread(() -> {
                 while (true) {
                     try {
-                        List<SeawayHouseBillEntity> batch = queue.poll(5, TimeUnit.SECONDS);
+                        List<B> batch = queue.poll(5, TimeUnit.SECONDS);
                         if (batch == null) {
                             if (readingDone.get()) break;
                             continue;
@@ -71,7 +71,7 @@ public abstract  class csvService {
         ) {
             int count = 0;
             int nullCount = 0;
-            List<SeawayHouseBillEntity> batch = new ArrayList<>();
+            List<B> batch = new ArrayList<>();
             CSVRecord lastRecord = null;
 
             for (CSVRecord record : parser) {
@@ -89,7 +89,7 @@ public abstract  class csvService {
                 count++;
 
 
-                SeawayHouseBillEntity entity = new SeawayHouseBillEntity();
+                B entity= createEntity();
                 mapCsvRowToEntity(record, entity); // cần sửa hàm map để nhận CSVRecord
                 batch.add(entity);
 
@@ -121,9 +121,8 @@ public abstract  class csvService {
         }
     }
 
+    public abstract B createEntity() ;
     public abstract <T> void insertDataBatch(List<T> batch) ;
-
-
     public abstract void createTable();
     public abstract <T> void fileRepositorySave(T entity);
     public abstract <T,U,V,L> void progressWebSocketSenderSendProgress1(T entity,U e2, V e3, L e4);
