@@ -42,8 +42,7 @@ public class SeawayMasterBillService extends csvService<SeawayMasterBillEntity> 
 
     @Autowired
     private mapEntitySeawayMasterContext mapEntitySeawayMasterContext;
-    @Autowired
-    private SeawayMasterQueueManager fileQueueManager;
+
     @Autowired
     private ProgressWebSocketSender progressWebSocketSender;
 
@@ -71,38 +70,6 @@ public class SeawayMasterBillService extends csvService<SeawayMasterBillEntity> 
 
     }
 
-    private void workerWriteToDb(String fileId, String filename) {
-        BlockingQueue<List<SeawayMasterBillEntity>> queue = fileQueueManager.getQueue(fileId);
-
-        while (true) {
-            try {
-                List<SeawayMasterBillEntity> batch = queue.poll(5, TimeUnit.SECONDS);
-                if (batch == null) {
-                    if (fileQueueManager.isReadingDone(fileId)) break;
-                    else continue;
-                }
-
-                insertDataBatch(batch);
-                fileQueueManager.incrementProcessed(fileId, batch.size());
-
-
-//                FileContext ctx = fileQueueManager.getContext(fileId);
-//                progressWebSocketSender.sendProgress1("fileId, ctx.getFileName(), ctx.getProcessedCount(), ctx.getQueue().size(), ctx.isReadingDone(), ctx.getErrorMessage()");
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                fileQueueManager.setErrorMessage("❌ Lỗi khi import file: " + filename + " - " + e.getMessage());
-
-            }
-        }
-
-        System.out.println(Thread.currentThread().getName() + " done!");
-        progressWebSocketSender.sendProgress1(fileId, filename, 100, true);
-
-        fileQueueManager.removeContext(fileId);
-
-
-    }
 
     public void createTableIfNotExists() {
         String sql = """
