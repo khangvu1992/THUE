@@ -122,6 +122,8 @@ public abstract  class csvService {
     }
 
     public abstract <T> void insertDataBatch(List<T> batch) ;
+
+
     public abstract void createTable();
     public abstract <T> void fileRepositorySave(T entity);
     public abstract <T,U,V,L> void progressWebSocketSenderSendProgress1(T entity,U e2, V e3, L e4);

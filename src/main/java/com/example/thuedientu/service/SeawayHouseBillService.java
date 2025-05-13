@@ -4,9 +4,6 @@ import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.model.SeawayHouseBillEntity;
 import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.util.*;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
-import com.opencsv.exceptions.CsvValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -27,7 +24,7 @@ import org.apache.commons.csv.CSVRecord;
 
 
 @Service
-public class SeawayHouseBillService {
+public class SeawayHouseBillService extends  csvService {
 
     @Autowired
     private ExcelDataFormatterService formatterService;
@@ -55,111 +52,117 @@ public class SeawayHouseBillService {
 
 
 
-    public void import1Datbase1JDBC1(File file, HashFile hashFile) {
-        String fileId = hashFile.getFileHash();
-        String filename = hashFile.getFilename();
-        createTable(); // Tạo bảng nếu chưa có
-
-        BlockingQueue<List<SeawayHouseBillEntity>> queue = new LinkedBlockingQueue<>(100);
-        AtomicBoolean readingDone = new AtomicBoolean(false);
-        AtomicInteger totalProcessed = new AtomicInteger(0);
-
-        // Khởi tạo các worker
-        for (int i = 0; i < WORKER_COUNT; i++) {
-            new Thread(() -> {
-                while (true) {
-                    try {
-                        List<SeawayHouseBillEntity> batch = queue.poll(5, TimeUnit.SECONDS);
-                        if (batch == null) {
-                            if (readingDone.get()) break;
-                            continue;
-                        }
-
-                        insertDataBatch(batch);
-                        long processed = totalProcessed.addAndGet(batch.size());
-
-                        if (processed % 10000 == 0) {
-                            int  percent = (int)( processed * 100L / 1048576);
-                            System.out.println("Progress: " + (percent * 10) + "%");
-                            progressWebSocketSender.sendProgress1(fileId, filename, percent, false);
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                System.out.println(Thread.currentThread().getName() + " done!");
-                progressWebSocketSender.sendProgress1(fileId, filename, 100, false);
-
-            }, "worker-" + i + "-" + filename).start();
-        }
-
-        // Đọc CSV bằng Apache Commons CSV
-        try (
-                Reader reader = new FileReader(file);
-                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())
-        ) {
-            int count = 0;
-            int nullCount = 0;
-            List<SeawayHouseBillEntity> batch = new ArrayList<>();
-            CSVRecord lastRecord = null;
-
-            for (CSVRecord record : parser) {
-                if (record == null || record.size() == 0) {
-                    nullCount++;
-                    if (nullCount >= 2) {
-                        System.out.println("🛑 Gặp 2 dòng null liên tiếp. Dừng đọc.");
-                        break;
-                    }
-                    continue;
-                } else {
-                    nullCount = 0;
-                }
-
-                count++;
-//                lastRecord = record;
-
-//                SeawayHouseBillEntity entity = new SeawayHouseBillEntity();
-//                mapEntitySeawayHouseContext.mapCsvRowToEntity(line, entity);
-//                batch.add(entity);
-
-                SeawayHouseBillEntity entity = new SeawayHouseBillEntity();
-                mapEntitySeawayHouseContext.mapCsvRowToEntity(record, entity); // cần sửa hàm map để nhận CSVRecord
-                batch.add(entity);
-
-                // ✅ In số dòng và nội dung dòng cuối cùng
-//                System.out.println("📦 Tổng số dòng đã đọc: " + count);
-//                System.out.println("🧾 Dòng cuối cùng:");
-//                for (int i = 0; i < record.size(); i++) {
-//                    System.out.println("Cột " + (i + 1) + ": " + record.get(i));
+//    public void import1Datbase1JDBC1(File file, HashFile hashFile) {
+//        String fileId = hashFile.getFileHash();
+//        String filename = hashFile.getFilename();
+//        createTable(); // Tạo bảng nếu chưa có
+//
+//        BlockingQueue<List<SeawayHouseBillEntity>> queue = new LinkedBlockingQueue<>(100);
+//        AtomicBoolean readingDone = new AtomicBoolean(false);
+//        AtomicInteger totalProcessed = new AtomicInteger(0);
+//
+//        // Khởi tạo các worker
+//        for (int i = 0; i < WORKER_COUNT; i++) {
+//            new Thread(() -> {
+//                while (true) {
+//                    try {
+//                        List<SeawayHouseBillEntity> batch = queue.poll(5, TimeUnit.SECONDS);
+//                        if (batch == null) {
+//                            if (readingDone.get()) break;
+//                            continue;
+//                        }
+//
+//                        insertDataBatch(batch);
+//                        long processed = totalProcessed.addAndGet(batch.size());
+//
+//                        if (processed % 10000 == 0) {
+//                            int  percent = (int)( processed * 100L / 1048576);
+//                            System.out.println("Progress: " + (percent * 10) + "%");
+//                            progressWebSocketSender.sendProgress1(fileId, filename, percent, false);
+//                        }
+//
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
 //                }
+//                System.out.println(Thread.currentThread().getName() + " done!");
+//                progressWebSocketSender.sendProgress1(fileId, filename, 100, false);
+//
+//            }, "worker-" + i + "-" + filename).start();
+//        }
+//
+//        // Đọc CSV bằng Apache Commons CSV
+//        try (
+//                Reader reader = new FileReader(file);
+//                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())
+//        ) {
+//            int count = 0;
+//            int nullCount = 0;
+//            List<SeawayHouseBillEntity> batch = new ArrayList<>();
+//            CSVRecord lastRecord = null;
+//
+//            for (CSVRecord record : parser) {
+//                if (record == null || record.size() == 0) {
+//                    nullCount++;
+//                    if (nullCount >= 2) {
+//                        System.out.println("🛑 Gặp 2 dòng null liên tiếp. Dừng đọc.");
+//                        break;
+//                    }
+//                    continue;
+//                } else {
+//                    nullCount = 0;
+//                }
+//
+//                count++;
+////                lastRecord = record;
+//
+////                SeawayHouseBillEntity entity = new SeawayHouseBillEntity();
+////                mapEntitySeawayHouseContext.mapCsvRowToEntity(line, entity);
+////                batch.add(entity);
+//
+//                SeawayHouseBillEntity entity = new SeawayHouseBillEntity();
+//                mapEntitySeawayHouseContext.mapCsvRowToEntity(record, entity); // cần sửa hàm map để nhận CSVRecord
+//                batch.add(entity);
+//
+//                // ✅ In số dòng và nội dung dòng cuối cùng
+////                System.out.println("📦 Tổng số dòng đã đọc: " + count);
+////                System.out.println("🧾 Dòng cuối cùng:");
+////                for (int i = 0; i < record.size(); i++) {
+////                    System.out.println("Cột " + (i + 1) + ": " + record.get(i));
+////                }
+//
+//                if (batch.size() >= 10000) {
+//                    queue.put(new ArrayList<>(batch));
+//                    batch.clear();
+//                }
+//            }
+//
+//            if (!batch.isEmpty()) {
+//                queue.put(batch);
+//            }
+//
+//        } catch (IOException | InterruptedException e) {
+//            e.printStackTrace();
+//        } finally {
+//            readingDone.set(true);
+//            file.delete();
+//            fileRepository.save(hashFile);
+//            System.out.println("🧹 Đã xoá file tạm: " + file.getAbsolutePath());
+//
+//        }
+//    }
 
-                if (batch.size() >= 10000) {
-                    queue.put(new ArrayList<>(batch));
-                    batch.clear();
-                }
-            }
-
-            if (!batch.isEmpty()) {
-                queue.put(batch);
-            }
-
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            readingDone.set(true);
-            file.delete();
-            fileRepository.save(hashFile);
-            System.out.println("🧹 Đã xoá file tạm: " + file.getAbsolutePath());
-
+    @Override
+    public <T> void insertDataBatch(List<T> batch) {
+        // Kiểm tra nếu batch là danh sách SeawayHouseBillEntity
+        if (batch != null && !batch.isEmpty() && batch.get(0) instanceof SeawayHouseBillEntity) {
+            // Chuyển kiểu về List<SeawayHouseBillEntity> an toàn
+            List<SeawayHouseBillEntity> castedBatch = (List<SeawayHouseBillEntity>) batch;
+            insertDataBatch1(castedBatch);  // Gọi phương thức đã triển khai
+        } else {
+            throw new IllegalArgumentException("Invalid batch type. Expected List<SeawayHouseBillEntity>");
         }
     }
-
-
-
-
-
-
 
 
     public void createTableIfNotExists() {
@@ -216,10 +219,46 @@ public class SeawayHouseBillService {
         jdbcTemplate.execute(sql);
     }
 
+    @Override
+    public <T> void fileRepositorySave(T entity) {
+        // Kiểm tra nếu entity là một đối tượng hợp lệ để lưu
+        if (entity instanceof HashFile) {
+            HashFile hashFile = (HashFile) entity;
+            fileRepository.save(hashFile);  // Lưu hashFile vào repository
+        } else {
+            throw new IllegalArgumentException("Entity phải là đối tượng HashFile.");
+        }
+    }
+
+    @Override
+    public <T, U, V, L> void progressWebSocketSenderSendProgress1(T entity, U e2, V e3, L e4) {
+
+        String fileId= (String) entity;
+        String filename= (String) e2;
+        int percent= (int) e3;
+        progressWebSocketSender.sendProgress1(fileId, filename, percent, false);
+
+    }
+
+    @Override
+    public <T, V> void mapCsvRowToEntity(T record, V entity) {
+
+        if (record instanceof CSVRecord && entity instanceof SeawayHouseBillEntity) {
+            CSVRecord csvRecord = (CSVRecord) record;
+            SeawayHouseBillEntity seawayHouseBillEntity = (SeawayHouseBillEntity) entity;
+
+            // Gọi phương thức mapCsvRowToEntity từ mapEntitySeawayHouseContext để chuyển đổi dữ liệu
+            mapEntitySeawayHouseContext.mapCsvRowToEntity(csvRecord, seawayHouseBillEntity);
+        } else {
+            throw new IllegalArgumentException("record phải là CSVRecord và entity phải là SeawayHouseBillEntity.");
+        }
+
+
+    }
 
 
     //    @Transactional
-    public void insertDataBatch(List<SeawayHouseBillEntity> batchList) {
+    public void insertDataBatch1(List<SeawayHouseBillEntity> batchList) {
         String insertSQL = "INSERT INTO seaway_master_bill ( " +
                 "SoKhaiBao, " +
                 "SoHoSo, " +
