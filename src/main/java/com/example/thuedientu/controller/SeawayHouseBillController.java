@@ -44,13 +44,13 @@ public class SeawayHouseBillController {
 
         try {
             // Kiểm tra trùng lặp bằng hash
-            if (fileUploadService.checkForDuplicateByContent(file)) {
-                System.out.println("🔁 Duplicate file detected");
-                return ResponseEntity.badRequest().body(Map.of(
-                        "status", "error",
-                        "message", "Duplicate file detected. Upload canceled."
-                ));
-            }
+//            if (fileUploadService.checkForDuplicateByContent(file)) {
+//                System.out.println("🔁 Duplicate file detected");
+//                return ResponseEntity.badRequest().body(Map.of(
+//                        "status", "error",
+//                        "message", "Duplicate file detected. Upload canceled."
+//                ));
+//            }
 
             // Tạo bản ghi hash mới
             HashFile hashFile = new HashFile();

@@ -34,8 +34,8 @@ public class SeawayHouseBillService {
 
     @Autowired
     private MapEntitySeawayHouseContext mapEntitySeawayHouseContext;
-    @Autowired
-    private SeawayHouseQueueManager fileQueueManager;
+//    @Autowired
+//    private SeawayHouseQueueManager fileQueueManager;
     @Autowired
     private ProgressWebSocketSender progressWebSocketSender;
 
@@ -46,9 +46,7 @@ public class SeawayHouseBillService {
     public void import1Datbase1JDBC1(File file, HashFile hashFile) {
         String fileId = hashFile.getFileHash();
         String filename = hashFile.getFilename();
-        fileQueueManager.removePendingFile(filename);
         createTable();
-        fileQueueManager.createContext(fileId, 50, filename);
 
         for (int i = 0; i < WORKER_COUNT; i++) {
             new Thread(() -> workerWriteToDb(fileId, filename), "worker-" + i + "-" + filename).start();
@@ -119,22 +117,22 @@ public class SeawayHouseBillService {
                 "SoKhaiBao NVARCHAR(255), " +
                 "SoHoSo NVARCHAR(255), " +
                 "LoaiHoSo NVARCHAR(255), " +
-                "ArrivalDate SMALLDATETIME, " +
+                "ArrivalDate DATETIME, " +
                 "CangTiepNhan NVARCHAR(4000), " +
-                "NgayGui SMALLDATETIME, " +
+                "NgayGui DATETIME, " +
                 "TenTau NVARCHAR(4000), " +
                 "SoIMO NVARCHAR(4000), " +
                 "HangTau NVARCHAR(4000), " +
-                "NgayTauDenRoi SMALLDATETIME, " +
-                "NgayDenRoi SMALLDATETIME, " +
+                "NgayTauDenRoi DATETIME, " +
+                "NgayDenRoi DATETIME, " +
                 "CangRoiCuoiCungCangDich NVARCHAR(4000), " +
                 "BillNumber NVARCHAR(255), " +
                 "HB_Consigner NVARCHAR(4000), " +
                 "HB_Consignee NVARCHAR(4000), " +
                 "HB_NotificatedParty NVARCHAR(4000), " +
                 "HB_NotificatedParty2 NVARCHAR(4000), " +
-                "DateOfBill SMALLDATETIME, " +
-                "DepartureDate SMALLDATETIME, " +
+                "DateOfBill DATETIME, " +
+                "DepartureDate DATETIME, " +
                 "PortNameOfTranship NVARCHAR(4000), " +
                 "PortNameOfDestination NVARCHAR(4000), " +
                 "PortNameOfLoad NVARCHAR(4000), " +
