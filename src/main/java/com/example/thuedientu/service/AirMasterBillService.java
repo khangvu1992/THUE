@@ -32,8 +32,7 @@ public class AirMasterBillService extends csvService<AirMasterBillEntity> {
     //    @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired
     private FileRepository fileRepository;
-    @Autowired
-    private ExcelProcessingService excelProcessingService;
+
 
 
     private ProgressWebSocketSender progressWebSocketSender;

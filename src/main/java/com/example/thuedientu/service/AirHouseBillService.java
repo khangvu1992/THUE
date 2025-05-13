@@ -32,8 +32,7 @@ public class AirHouseBillService extends csvService<AirHouseBillEntity> {
     //    @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired
     private FileRepository fileRepository;
-    @Autowired
-    private ExcelProcessingService excelProcessingService;
+
 
 
     @Autowired

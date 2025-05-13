@@ -34,7 +34,6 @@ public class DatabaseServiceClone {
 
     //    @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired private FileRepository fileRepository;
-    @Autowired private ExcelProcessingService excelProcessingService;
 
     @Autowired private mapEntityJDBCClone map1EntityJDBC;
     @Autowired private FileQueueManagerClone fileQueueManager;

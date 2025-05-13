@@ -33,7 +33,6 @@ public class DatabaseService {
 
     //    @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired private FileRepository fileRepository;
-    @Autowired private ExcelProcessingService excelProcessingService;
 
     @Autowired private mapEntityJDBC map1EntityJDBC;
     @Autowired private FileQueueManager fileQueueManager;

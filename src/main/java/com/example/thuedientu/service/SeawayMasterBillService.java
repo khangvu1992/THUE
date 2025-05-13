@@ -37,8 +37,7 @@ public class SeawayMasterBillService extends csvService<SeawayMasterBillEntity> 
     //    @Autowired private insertDataBatchService insertDataBatchService1;
     @Autowired
     private FileRepository fileRepository;
-    @Autowired
-    private ExcelProcessingService excelProcessingService;
+
 
 
 
