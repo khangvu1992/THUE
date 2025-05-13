@@ -1,8 +1,9 @@
-package com.example.thuedientu.util;
+package com.example.thuedientu.queueService;
 
 import com.example.thuedientu.model.HashFile;
+import com.example.thuedientu.service.DatabaseServiceClone;
 import com.example.thuedientu.service.FileUploadService;
-import com.example.thuedientu.service.SeawayHouseBillService;
+import com.example.thuedientu.util.FileWithHash;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+
 @Service
-public class SeawayHouseQueueService {
+public class FileImportQueueServiceClone {
+
 
     @Autowired
-    private SeawayHouseBillService excelImportService;
+    private DatabaseServiceClone excelImportService1;
+
 
     @Autowired
     private FileUploadService fileUploadService;
@@ -25,32 +29,39 @@ public class SeawayHouseQueueService {
     private final BlockingQueue<FileWithHash> importQueue = new LinkedBlockingQueue<>();
     private final ExecutorService executor = Executors.newSingleThreadExecutor(); // Đảm bảo tuần tự
 
+
+
     @PostConstruct
     public void startImportWorker() {
         executor.submit(() -> {
             while (true) {
                 FileWithHash file = importQueue.take(); // Chờ lấy file tiếp theo
 
+
                 try {
                     System.out.println("📥 Importing file: " + file.getFile());
                     // Gọi xử lý Excel tại đây
-                    excelImportService.import1Datbase1JDBC1(file.getFile(), file.getHashFile());
+                    excelImportService1.import1Datbase1JDBC1(file.getFile(), file.getHashFile());
+
 
                     // Xóa file sau khi import xong
                     System.out.println("✅ Done: " + file.getFile());
 
-                    // Xoá file khỏi hàng đợi
-                    // importQueue.remove(file);
+                    //xoa file khoi hang doi
+
+//                    importQueue.remove(file);
 
                 } catch (Exception e) {
-                    System.err.println("❌ Lỗi khi import file " + ": " + e.getMessage());
+                    System.err.println("❌ Lỗi khi import file " +  ": " + e.getMessage());
                 }
             }
         });
     }
 
+
+
     public void enqueueFile(File file, HashFile hashFile) {
-        FileWithHash fileNew = new FileWithHash(file, hashFile);
+        FileWithHash fileNew= new FileWithHash(file,hashFile);
         importQueue.add(fileNew);
         System.out.println("📦 File added to queue: " + file.getName());
     }
@@ -65,7 +76,6 @@ public class SeawayHouseQueueService {
             }
         }
     }
-
     public boolean removeFileFromQueue(String hash) {
         for (FileWithHash file : importQueue) {
             if (file.getHashFile().getFileHash().equals(hash)) {
@@ -79,4 +89,8 @@ public class SeawayHouseQueueService {
         System.out.println("⚠️ Không tìm thấy file với hash: " + hash);
         return false;
     }
+
+
+
 }
+

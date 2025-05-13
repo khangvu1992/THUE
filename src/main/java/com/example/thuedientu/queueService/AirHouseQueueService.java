@@ -1,8 +1,9 @@
-package com.example.thuedientu.util;
+package com.example.thuedientu.queueService;
 
 import com.example.thuedientu.model.HashFile;
+import com.example.thuedientu.service.AirHouseBillService;
 import com.example.thuedientu.service.FileUploadService;
-import com.example.thuedientu.service.AirMasterBillService;
+import com.example.thuedientu.util.FileWithHash;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +15,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Service
-public class AirMasterQueueService {
+public class AirHouseQueueService {
 
     @Autowired
-    private AirMasterBillService airMasterBillService;
+    private AirHouseBillService airHouseBillService;
 
     @Autowired
     private FileUploadService fileUploadService;
@@ -37,7 +38,7 @@ public class AirMasterQueueService {
                     System.out.println("📥 Đang import file: " + file.getAbsolutePath());
 
                     // Gọi hàm xử lý import Excel
-                    airMasterBillService.import1Datbase1JDBC1(file, hashFile);
+                    airHouseBillService.import1Datbase1JDBC1(file, hashFile);
 
                     // Sau khi xử lý xong, có thể xoá file tạm (nếu cần)
                     System.out.println("✅ Hoàn tất import: " + file.getName());

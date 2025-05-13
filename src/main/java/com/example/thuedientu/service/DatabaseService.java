@@ -4,12 +4,13 @@ import com.example.thuedientu.model.EnityExcelJDBC;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.util.*;
+import com.example.thuedientu.utilExcel.FileQueueManager;
+import com.example.thuedientu.utilExcel.mapEntityJDBC;
 import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.scheduling.annotation.Async;
 
 import java.io.File;
 import java.io.FileInputStream;

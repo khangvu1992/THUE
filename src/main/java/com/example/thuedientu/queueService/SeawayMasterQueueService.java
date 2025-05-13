@@ -1,9 +1,9 @@
-package com.example.thuedientu.util;
+package com.example.thuedientu.queueService;
 
 import com.example.thuedientu.model.HashFile;
-import com.example.thuedientu.service.DatabaseService;
-import com.example.thuedientu.service.DatabaseServiceClone;
 import com.example.thuedientu.service.FileUploadService;
+import com.example.thuedientu.service.SeawayMasterBillService;
+import com.example.thuedientu.util.FileWithHash;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 
 @Service
-public class FileImportQueueServiceClone {
+public class SeawayMasterQueueService {
 
 
     @Autowired
-    private DatabaseServiceClone excelImportService1;
+    private SeawayMasterBillService excelImportService1;
 
 
     @Autowired

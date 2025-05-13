@@ -1,6 +1,6 @@
-package com.example.thuedientu.util;
+package com.example.thuedientu.utilExcel;
 
-import com.example.thuedientu.model.ExportEntity;
+import com.example.thuedientu.model.EnityExcelJDBC;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
-public class FileQueueManagerClone {
+public class FileQueueManager {
 
     private final AtomicInteger processedCount = new AtomicInteger();
     private volatile boolean readingDone = false;
@@ -25,38 +25,38 @@ public class FileQueueManagerClone {
     private volatile String errorMessage = null; // ❗ lỗi xảy ra trong import
     private final ConcurrentLinkedQueue<String> pendingFileNames = new ConcurrentLinkedQueue<>();
 
-    private final Map<String, FileContextClone> fileContexts = new ConcurrentHashMap<>();
+    private final Map<String, FileContext> fileContexts = new ConcurrentHashMap<>();
 
     public void createContext(String fileId, int queueCapacity, String fileName) {
-        BlockingQueue<List<ExportEntity>> queue = new ArrayBlockingQueue<>(queueCapacity);
-        fileContexts.put(fileId, new FileContextClone(queue, fileName));
+        BlockingQueue<List<EnityExcelJDBC>> queue = new ArrayBlockingQueue<>(queueCapacity);
+        fileContexts.put(fileId, new FileContext(queue, fileName));
     }
 
-    public BlockingQueue<List<ExportEntity>> getQueue(String fileId) {
+    public BlockingQueue<List<EnityExcelJDBC>> getQueue(String fileId) {
         return fileContexts.get(fileId).getQueue();
     }
 
     public void incrementProcessed(String fileId, int count) {
-        FileContextClone context = fileContexts.get(fileId);
+        FileContext context = fileContexts.get(fileId);
         if (context != null) {
             context.incrementProcessed(count);
         }
     }
 
     public int getProcessed(String fileId) {
-        FileContextClone context = fileContexts.get(fileId);
+        FileContext context = fileContexts.get(fileId);
         return context != null ? context.getProcessedCount() : 0;
     }
 
     public void markReadingDone(String fileId) {
-        FileContextClone context = fileContexts.get(fileId);
+        FileContext context = fileContexts.get(fileId);
         if (context != null) {
             context.markReadingDone();
         }
     }
 
     public boolean isReadingDone(String fileId) {
-        FileContextClone context = fileContexts.get(fileId);
+        FileContext context = fileContexts.get(fileId);
         return context != null && context.isReadingDone();
     }
 
@@ -86,24 +86,24 @@ public class FileQueueManagerClone {
             }
         }
 
-        List<FileContextClone> processingFiles = fileContexts.values().stream()
-                .filter(FileContextClone::isStillProcessing)
+        List<FileContext> processingFiles = fileContexts.values().stream()
+                .filter(FileContext::isStillProcessing)
                 .collect(Collectors.toList());
 
-        List<FileContextClone> errorFiles = fileContexts.values().stream()
-                .filter(FileContextClone::hasError)
+        List<FileContext> errorFiles = fileContexts.values().stream()
+                .filter(FileContext::hasError)
                 .collect(Collectors.toList());
 
         if (!processingFiles.isEmpty()) {
             System.out.println("⏳ Các file đang xử lý:");
-            for (FileContextClone ctx : processingFiles) {
+            for (FileContext ctx : processingFiles) {
                 System.out.println("🕒 " + ctx.getFileName());
             }
         }
 
         if (!errorFiles.isEmpty()) {
             System.out.println("❌ Các file bị lỗi:");
-            for (FileContextClone ctx : errorFiles) {
+            for (FileContext ctx : errorFiles) {
                 System.out.println("🚨 " + ctx.getFileName() + " - " );
             }
         }

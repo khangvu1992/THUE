@@ -1,15 +1,15 @@
-package com.example.thuedientu.util;
+package com.example.thuedientu.utilExcel;
 
-import com.example.thuedientu.model.EnityExcelJDBC;
+import com.example.thuedientu.model.ExportEntity;
 import lombok.Getter;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FileContext {
+public class FileContextClone {
     @Getter
-    private final BlockingQueue<List<EnityExcelJDBC>> queue;
+    private final BlockingQueue<List<ExportEntity>> queue;
     private final AtomicInteger processedCount = new AtomicInteger(0);
     @Getter
     private volatile boolean readingDone = false;
@@ -19,7 +19,7 @@ public class FileContext {
     private volatile String errorMessage = null;
 
 
-    public FileContext(BlockingQueue<List<EnityExcelJDBC>> queue, String fileName) {
+    public FileContextClone(BlockingQueue<List<ExportEntity>> queue, String fileName) {
         this.queue = queue;
         this.fileName = fileName;
     }
