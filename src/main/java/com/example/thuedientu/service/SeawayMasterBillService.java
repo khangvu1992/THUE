@@ -118,9 +118,9 @@ public class SeawayMasterBillService {
 
 
     public void createTable() {
-        String sql = "IF OBJECT_ID('dbo.seaway_master_bill', 'U') IS NULL " +
+        String sql = "IF OBJECT_ID('dbo.seaway_house_bill', 'U') IS NULL " +
                 "BEGIN " +
-                "CREATE TABLE seaway_master_bill (" +
+                "CREATE TABLE seaway_house_bill (" +
                 "id BIGINT IDENTITY PRIMARY KEY, " +
                 "SoKhaiBao NVARCHAR(4000), " +
                 "SoHoSo NVARCHAR(4000), " +
@@ -159,7 +159,7 @@ public class SeawayMasterBillService {
 
     //    @Transactional
     public void insertDataBatch(List<SeawayMasterBillEntity> batchList) {
-        String insertSQL = "INSERT INTO seaway_master_bill( " +
+        String insertSQL = "INSERT INTO seaway_house_bill( " +
                 "SoKhaiBao, " +
                 "SoHoSo, " +
                 "LoaiHoSo, " +

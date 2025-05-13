@@ -1,6 +1,7 @@
 package com.example.thuedientu.util;
 
 import com.example.thuedientu.model.SeawayHouseBillEntity;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,48 +12,50 @@ public class MapEntitySeawayHouseContext {
     @Autowired
     private ExcelDataFormatterService formatterService;
 
-    public void mapCsvRowToEntity(String[] tokens, SeawayHouseBillEntity entity) {
-        if (tokens.length < 29) {
-            throw new Error("Insufficient tokens. The length must be at least 29.");
-        }
+    public void mapCsvRowToEntity(CSVRecord record, SeawayHouseBillEntity entity) {
+        // if (record.size() < 29) {
+        //     throw new IllegalArgumentException("Insufficient columns: expected at least 29, but got " + record.size());
+        // }
 
-        // Mapping CSV tokens to the entity fields
-        entity.setSoKhaiBao(getString(tokens, 0));
-        entity.setSoHoSo(getString(tokens, 1));
-        entity.setLoaiHoSo(getString(tokens, 2));
-        entity.setArrivalDate(formatterService.parseSqlTimestamp(getString(tokens, 3),tokens));
-        entity.setCangTiepNhan(getString(tokens, 4));
-        entity.setNgayGui(formatterService.parseSqlTimestamp(getString(tokens, 5),tokens));
-        entity.setTenTau(getString(tokens, 6));
-        entity.setSoIMO(getString(tokens, 7));
-        entity.setHangTau(getString(tokens, 8));
-        entity.setNgayTauDenRoi(formatterService.parseSqlTimestamp(getString(tokens, 9),tokens));
-        entity.setNgayDenRoi(formatterService.parseSqlTimestamp(getString(tokens, 10),tokens));
-        entity.setCangRoiCuoiCungCangDich(getString(tokens, 11));
-        entity.setBillNumber(getString(tokens, 12));
-        entity.setHbConsigner(getString(tokens, 13));
-        entity.setHbConsignee(getString(tokens, 14));
-        entity.setHbNotificatedParty(getString(tokens, 15));
-        entity.setHbNotificatedParty2(getString(tokens, 16));
-        entity.setDateOfBill(formatterService.parseSqlTimestamp(getString(tokens, 17),tokens));
-        entity.setDepartureDate(formatterService.parseSqlTimestamp(getString(tokens, 18),tokens));
-        entity.setPortNameOfTranship(getString(tokens, 19));
-        entity.setPortNameOfDestination(getString(tokens, 20));
-        entity.setPortNameOfLoad(getString(tokens, 21));
-        entity.setPortNameOfUnload(getString(tokens, 22));
-        entity.setPlaceOfDelivery(getString(tokens, 23));
-        entity.setMoTaHangHoa(getString(tokens, 24));
-        entity.setContNumber(getString(tokens, 25));
-        entity.setContSealNumber(getString(tokens, 26));
-        entity.setNumberOfPackage(formatterService.parseInteger(getString(tokens, 27),3));
-        entity.setCargoType(getString(tokens, 28));
+        entity.setSoKhaiBao(getString(record, 0));
+        entity.setSoHoSo(getString(record, 1));
+        entity.setLoaiHoSo(getString(record, 2));
+        entity.setArrivalDate(formatterService.parseSqlTimestamp(getString(record, 3), record.toList().toArray(new String[0])));
+        entity.setCangTiepNhan(getString(record, 4));
+        entity.setNgayGui(formatterService.parseSqlTimestamp(getString(record, 5), record.toList().toArray(new String[0])));
+        entity.setTenTau(getString(record, 6));
+        entity.setSoIMO(getString(record, 7));
+        entity.setHangTau(getString(record, 8));
+        entity.setNgayTauDenRoi(formatterService.parseSqlTimestamp(getString(record, 9), record.toList().toArray(new String[0])));
+        entity.setNgayDenRoi(formatterService.parseSqlTimestamp(getString(record, 10), record.toList().toArray(new String[0])));
+        entity.setCangRoiCuoiCungCangDich(getString(record, 11));
+        entity.setBillNumber(getString(record, 12));
+        entity.setHbConsigner(getString(record, 13));
+        entity.setHbConsignee(getString(record, 14));
+        entity.setHbNotificatedParty(getString(record, 15));
+        entity.setHbNotificatedParty2(getString(record, 16));
+        entity.setDateOfBill(formatterService.parseSqlTimestamp(getString(record, 17), record.toList().toArray(new String[0])));
+        entity.setDepartureDate(formatterService.parseSqlTimestamp(getString(record, 18), record.toList().toArray(new String[0])));
+        entity.setPortNameOfTranship(getString(record, 19));
+        entity.setPortNameOfDestination(getString(record, 20));
+        entity.setPortNameOfLoad(getString(record, 21));
+        entity.setPortNameOfUnload(getString(record, 22));
+        entity.setPlaceOfDelivery(getString(record, 23));
+        entity.setMoTaHangHoa(getString(record, 24));
+        entity.setContNumber(getString(record, 25));
+        entity.setContSealNumber(getString(record, 26));
+        entity.setNumberOfPackage(formatterService.parseInteger(getString(record, 27), 3));
+        entity.setCargoType(getString(record, 28));
     }
 
-    private String getString(String[] tokens, int index) {
-        if (tokens.length <= index || tokens[index] == null) {
+
+    private String getString(CSVRecord record, int index) {
+        if (index >= record.size()) {
+            System.err.println("⚠️ Thiếu cột ở index " + index + " trong dòng: " + record.toString());
             return "";
         }
-        return tokens[index].trim();
+        String value = record.get(index);
+        return value != null ? value.trim() : "";
     }
 }
 
