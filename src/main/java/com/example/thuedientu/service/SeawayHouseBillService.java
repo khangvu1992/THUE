@@ -1,5 +1,6 @@
 package com.example.thuedientu.service;
 
+import com.example.thuedientu.abstractFace.csvService;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.model.SeawayHouseBillEntity;
 import com.example.thuedientu.repository.FileRepository;
@@ -8,23 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 
 
 @Service
-public class SeawayHouseBillService extends  csvService<SeawayHouseBillEntity> {
+public class SeawayHouseBillService extends csvService<SeawayHouseBillEntity> {
 
     @Autowired
     private ExcelDataFormatterService formatterService;

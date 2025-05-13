@@ -1,28 +1,16 @@
 package com.example.thuedientu.service;
 
+import com.example.thuedientu.abstractFace.csvService;
 import com.example.thuedientu.model.HashFile;
-import com.example.thuedientu.model.SeawayHouseBillEntity;
 import com.example.thuedientu.model.SeawayMasterBillEntity;
 import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.util.*;
-import com.monitorjbl.xlsx.StreamingReader;
-import com.opencsv.CSVReader;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.sql.Timestamp;
-
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class SeawayMasterBillService extends csvService<SeawayMasterBillEntity> {

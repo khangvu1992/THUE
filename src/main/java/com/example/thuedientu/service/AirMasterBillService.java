@@ -1,23 +1,16 @@
 package com.example.thuedientu.service;
 
-import com.example.thuedientu.model.AirHouseBillEntity;
+import com.example.thuedientu.abstractFace.csvService;
 import com.example.thuedientu.model.AirMasterBillEntity;
 import com.example.thuedientu.model.HashFile;
-import com.example.thuedientu.model.SeawayHouseBillEntity;
 import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.util.*;
-import com.opencsv.CSVReader;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class AirMasterBillService extends csvService<AirMasterBillEntity> {
