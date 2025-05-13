@@ -1,11 +1,13 @@
 package com.example.thuedientu.service;
 
+import com.example.thuedientu.model.AirHouseBillEntity;
 import com.example.thuedientu.model.AirMasterBillEntity;
 import com.example.thuedientu.model.HashFile;
 import com.example.thuedientu.model.SeawayHouseBillEntity;
 import com.example.thuedientu.repository.FileRepository;
 import com.example.thuedientu.util.*;
 import com.opencsv.CSVReader;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class AirMasterBillService {
+public class AirMasterBillService extends csvService<AirMasterBillEntity> {
 
     @Autowired
     private ExcelDataFormatterService formatterService;
@@ -44,59 +46,9 @@ public class AirMasterBillService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void import1Datbase1JDBC1(File file, HashFile hashFile) {
-        String fileId = hashFile.getFileHash();
-        String filename = hashFile.getFilename();
-        fileQueueManager.removePendingFile(filename);
-        createTable();
-        fileQueueManager.createContext(fileId, 50, filename);
-
-        for (int i = 0; i < WORKER_COUNT; i++) {
-            new Thread(() -> workerWriteToDb(fileId, filename), "worker-" + i + "-" + filename).start();
-            System.out.println("worker-" + i + "-" + fileId);
-        }
-
-        readCsvAndEnqueue(file, fileId, filename);
-
-        fileQueueManager.markReadingDone(fileId);
-
-        file.delete();
-        fileRepository.save(hashFile);
-        System.out.println("🧹 Xoá file tạm: " + file.getAbsolutePath());
-    }
-
-    private void workerWriteToDb(String fileId, String filename) {
-        BlockingQueue<List<AirMasterBillEntity>> queue = fileQueueManager.getQueue(fileId);
-
-        while (true) {
-            try {
-                List<AirMasterBillEntity> batch = queue.poll(5, TimeUnit.SECONDS);
-                if (batch == null) {
-                    if (fileQueueManager.isReadingDone(fileId)) break;
-                    else continue;
-                }
-
-                insertDataBatch(batch);
-                fileQueueManager.incrementProcessed(fileId, batch.size());
 
 
-//                FileContext ctx = fileQueueManager.getContext(fileId);
-//                progressWebSocketSender.sendProgress1("fileId, ctx.getFileName(), ctx.getProcessedCount(), ctx.getQueue().size(), ctx.isReadingDone(), ctx.getErrorMessage()");
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                fileQueueManager.setErrorMessage("❌ Lỗi khi import file: " + filename + " - " + e.getMessage());
-
-            }
-        }
-
-        System.out.println(Thread.currentThread().getName() + " done!");
-        progressWebSocketSender.sendProgress1(fileId, filename, 100, true);
-
-        fileQueueManager.removeContext(fileId);
-
-
-    }
 
     public void createTableIfNotExists() {
         String sql = """
@@ -111,6 +63,23 @@ public class AirMasterBillService {
         jdbcTemplate.execute(sql);
     }
 
+
+    @Override
+    public AirMasterBillEntity createEntity() {
+        return new AirMasterBillEntity();
+    }
+
+    @Override
+    public <T> void insertDataBatch(List<T> batch) {
+
+        if (batch != null && !batch.isEmpty() && batch.get(0) instanceof AirMasterBillEntity) {
+            // Chuyển kiểu về List<SeawayHouseBillEntity> an toàn
+            List<AirMasterBillEntity> castedBatch = (List<AirMasterBillEntity>) batch;
+            insertDataBatch1(castedBatch);  // Gọi phương thức đã triển khai
+        } else {
+            throw new IllegalArgumentException("Invalid batch type. Expected List<AirMasterBillEntity>");
+        }
+    }
 
     public void createTable() {
         String sql = """
@@ -149,10 +118,43 @@ public class AirMasterBillService {
         jdbcTemplate.execute(sql);
     }
 
+    @Override
+    public <T> void fileRepositorySave(T entity) {
+        if (entity instanceof HashFile) {
+            HashFile hashFile = (HashFile) entity;
+            fileRepository.save(hashFile);  // Lưu hashFile vào repository
+        } else {
+            throw new IllegalArgumentException("Entity phải là đối tượng HashFile.");
+        }
+    }
+
+    @Override
+    public <T, U, V, L> void progressWebSocketSenderSendProgress1(T entity, U e2, V e3, L e4) {
+        String fileId= (String) entity;
+        String filename= (String) e2;
+        int percent= (int) e3;
+        progressWebSocketSender.sendProgress1(fileId, filename, percent, false);
+
+    }
+
+    @Override
+    public <T, V> void mapCsvRowToEntity(T record, V entity) {
+        if (record instanceof CSVRecord && entity instanceof AirMasterBillEntity) {
+            CSVRecord csvRecord = (CSVRecord) record;
+            AirMasterBillEntity airMasterBillEntity = (AirMasterBillEntity) entity;
+
+            // Gọi phương thức mapCsvRowToEntity từ mapEntitySeawayHouseContext để chuyển đổi dữ liệu
+            mapCsvRowToEntity1(csvRecord, airMasterBillEntity);
+        } else {
+            throw new IllegalArgumentException("record phải là CSVRecord và entity phải là SeawayHouseBillEntity.");
+        }
+
+
+    }
 
 
     //    @Transactional
-    public void insertDataBatch(List<AirMasterBillEntity> batchList) {
+    public void insertDataBatch1(List<AirMasterBillEntity> batchList) {
         String insertSQL = "INSERT INTO air_master_bill ( " +
                 "IDCHUYENBAY, " +
                 "FLIGHTDATE, " +
@@ -208,44 +210,42 @@ public class AirMasterBillService {
         });
     }
 
+    public void mapCsvRowToEntity1(CSVRecord tokens, AirMasterBillEntity entity) {
 
-    private void readCsvAndEnqueue(File file, String fileId, String filename) {
-        try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
-            String[] tokens;
-            boolean skipHeader = true;
-            List<AirMasterBillEntity> batch = new ArrayList<>();
-            int count = 0;
-
-            while ((tokens = csvReader.readNext()) != null) {
-                if (skipHeader) {
-                    skipHeader = false;
-                    continue; // Bỏ qua header
-                }
-
-                AirMasterBillEntity entity = new AirMasterBillEntity();
-                mapEntityAirMasterContext.mapCsvRowToEntity(tokens, entity);
-                batch.add(entity);
-                count++;
-
-                if (batch.size() >= BATCH_SIZE) {
-                    fileQueueManager.getQueue(fileId).put(new ArrayList<>(batch));
-                    batch.clear();
-                }
-
-                if (count % 10000 == 0) {
-                    int progress = (int) (count * 100L / 1048576); // giả sử 1,048,576 dòng
-                    progressWebSocketSender.sendProgress1(fileId, filename, progress, false);
-                }
-            }
-
-            if (!batch.isEmpty()) {
-                fileQueueManager.getQueue(fileId).put(batch);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
+        entity.setIdChuyenBay(getSafe(tokens, 0));
+        entity.setFlightDate(formatterService.parseSqlTimestamp(getSafe(tokens, 1),tokens.toList().toArray(new String[0])));
+        entity.setCarrier(getSafe(tokens, 2));
+        entity.setFlightNo(getSafe(tokens, 3));
+        entity.setOrigin(getSafe(tokens, 4));
+        entity.setDestination(getSafe(tokens, 5));
+        entity.setMawbNo(getSafe(tokens, 6));
+        entity.setMTenNguoiGui(getSafe(tokens, 7));
+        entity.setMTenNguoiNhan(getSafe(tokens, 8));
+        entity.setMMoTaHangHoa(getSafe(tokens, 9));
+        entity.setMSoKien(formatterService.parseInteger(getSafe(tokens, 10), 0));
+        entity.setMGrossWeight(formatterService.parseBigDecimal(getSafe(tokens, 11), 1));
+        entity.setMSanBayDi(getSafe(tokens, 12));
+        entity.setMSanBayDen(getSafe(tokens, 13));
+        entity.setMVersion(getSafe(tokens, 14));
+        entity.setHSoMawb(getSafe(tokens, 15));
+        entity.setHSoHwb(getSafe(tokens, 16));
+        entity.setHTenNguoiGui(getSafe(tokens, 17));
+        entity.setHTenNguoiNhan(getSafe(tokens, 18));
+        entity.setHSoKien(formatterService.parseInteger(getSafe(tokens, 19), 0));
+        entity.setHTrongLuong(formatterService.parseBigDecimal(getSafe(tokens, 20), 2));
+        entity.setHNoiDi(getSafe(tokens, 21));
+        entity.setHNoiDen(getSafe(tokens, 22));
+        entity.setHMoTaHangHoa(getSafe(tokens, 23));
     }
+
+    private String getSafe(CSVRecord tokens, int index) {
+        if (index >= tokens.size()) {
+            System.err.println("⚠️ Thiếu cột ở index " + index + " trong dòng: " + tokens.toString());
+            return "";
+        }
+        String value = tokens.get(index);
+        return value != null ? value.trim() : "";
+    }
+
+
 }
