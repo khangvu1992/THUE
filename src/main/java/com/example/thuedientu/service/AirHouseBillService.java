@@ -139,7 +139,7 @@ public class AirHouseBillService extends csvService<AirHouseBillEntity> {
             AirHouseBillEntity airHouseBillEntity = (AirHouseBillEntity) entity;
 
             // Gọi phương thức mapCsvRowToEntity từ mapEntitySeawayHouseContext để chuyển đổi dữ liệu
-            mapCsvRowToEntity(csvRecord, airHouseBillEntity);
+            mapCsvRowToEntity1(csvRecord, airHouseBillEntity);
         } else {
             throw new IllegalArgumentException("record phải là CSVRecord và entity phải là SeawayHouseBillEntity.");
         }
@@ -197,16 +197,13 @@ public class AirHouseBillService extends csvService<AirHouseBillEntity> {
     }
 
 
-    public void mapCsvRowToEntity(String[] tokens, AirHouseBillEntity entity) {
-        if (tokens.length < 20) {
-            throw new IllegalArgumentException("Insufficient tokens. Expected at least 20 fields, got: " + tokens.length);
-        }
+    public void mapCsvRowToEntity1(CSVRecord tokens, AirHouseBillEntity entity) {
 
         try {
 
             entity.setIdChuyenBay(getSafe(tokens, 0));
             entity.setSoHieu(getSafe(tokens, 1));
-            entity.setFlightDate(formatterService.parseSqlTimestamp(getSafe(tokens, 2),tokens));
+            entity.setFlightDate(formatterService.parseSqlTimestamp(getSafe(tokens, 2),tokens.toList().toArray(new String[0])));
             entity.setCarrierCode(getSafe(tokens, 3));
             entity.setCarrierName(getSafe(tokens, 4));
             entity.setMaNoiDi(getSafe(tokens, 5));
@@ -229,11 +226,13 @@ public class AirHouseBillService extends csvService<AirHouseBillEntity> {
         }
     }
 
-    private String getSafe(String[] tokens, int index) {
-        if (index >= tokens.length || tokens[index] == null) {
+    private String getSafe(CSVRecord tokens, int index) {
+        if (index >= tokens.size()) {
+            System.err.println("⚠️ Thiếu cột ở index " + index + " trong dòng: " + tokens.toString());
             return "";
         }
-        return tokens[index].trim();
+        String value = tokens.get(index);
+        return value != null ? value.trim() : "";
     }
 
 }
