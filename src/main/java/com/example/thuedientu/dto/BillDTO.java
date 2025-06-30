@@ -20,4 +20,6 @@ public class BillDTO {
     private Date arrivalDate;
     private String moTaHangHoaMaster;
     private int masterId;
+
+
 }
