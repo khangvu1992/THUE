@@ -1,6 +1,7 @@
 package com.example.thuedientu.controller;
 
 import com.example.thuedientu.dto.BillDTO;
+import com.example.thuedientu.dto.ColumnNameDTO;
 import com.example.thuedientu.dto.TableNameDTO;
 import com.example.thuedientu.model.EnityExcel;
 import com.example.thuedientu.service.BillService;
@@ -39,6 +40,14 @@ public class SearchBillController {
 public List<TableNameDTO> getAllTables() {
     return billService.getAllTableNames();
 }
+
+@GetMapping("/nameColumns")
+    public List<ColumnNameDTO> getAllColumnNames(
+        @RequestParam(defaultValue = "") String tableName
+
+) {
+        return billService.getAllColumnNames(tableName);
+    }
 
 
 }
