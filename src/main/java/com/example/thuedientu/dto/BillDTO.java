@@ -22,6 +22,14 @@ public class BillDTO {
     private int masterId;
 
 
+
+
+
+
+
+
+
+
 }
 
 
