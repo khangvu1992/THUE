@@ -35,6 +35,11 @@ public class SearchBillController {
 ////        return billService.searchBill(keyword, page, size);
 //    }
 
+@PostMapping("/find")
+public List<TableNameDTO> getAllTabless() {
+    return billService.getAllTableNames();
+}
+
 
 @GetMapping
 public List<TableNameDTO> getAllTables() {
