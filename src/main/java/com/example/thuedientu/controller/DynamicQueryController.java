@@ -20,33 +20,53 @@ public class DynamicQueryController {
 
     @PostMapping("/find")
     public ResponseEntity<List<Map<String, Object>>> search(@RequestBody DynamicQueryRequest request) {
-        String sql = buildSql(request);
-        List<Object> params = buildParams(request);
-
+        List<Object> params = new ArrayList<>();
+        String sql = buildSql(request, params);
         List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, params.toArray());
         return ResponseEntity.ok(result);
     }
 
-    private String buildSql(DynamicQueryRequest req) {
+    private String buildSql(DynamicQueryRequest req, List<Object> params) {
         StringBuilder sql = new StringBuilder();
 
-        // 1. SELECT
-        String selectFields = req.getSelectedFields().isEmpty() ? "*" : String.join(", ", req.getSelectedFields());
-        sql.append("SELECT ").append(selectFields).append(" FROM ").append(req.getNameTable());
+        // 1. SELECT fields
+        String selectFields = req.getSelectedFields() == null || req.getSelectedFields().isEmpty()
+                ? "*"
+                : String.join(", ", req.getSelectedFields());
+        sql.append("SELECT ").append(selectFields)
+                .append(" FROM ").append(req.getNameTable());
 
-        // 2. WHERE
+        // 2. WHERE clause
         Map<String, Object> filters = req.getFiltered();
         List<String> where = new ArrayList<>();
+
         if (filters != null) {
             for (Map.Entry<String, Object> entry : filters.entrySet()) {
+                String field = entry.getKey();
                 Object val = entry.getValue();
-                if (val instanceof Map) {
-                    where.add(entry.getKey() + " BETWEEN ? AND ?");
+
+                if (val instanceof Map<?, ?> mapVal) {
+                    Object from = mapVal.get("from");
+                    Object to = mapVal.get("to");
+
+                    if (from != null && !from.toString().isBlank()) {
+                        where.add(field + " >= ?");
+                        params.add(from);
+                    }
+
+                    if (to != null && !to.toString().isBlank()) {
+                        where.add(field + " <= ?");
+                        params.add(to);
+                    }
                 } else {
-                    where.add(entry.getKey() + " = ?");
+                    if (val != null && !val.toString().isBlank()) {
+                        where.add(field + " = ?");
+                        params.add(val);
+                    }
                 }
             }
         }
+
         if (!where.isEmpty()) {
             sql.append(" WHERE ").append(String.join(" AND ", where));
         }
@@ -56,27 +76,13 @@ public class DynamicQueryController {
             sql.append(" ORDER BY ").append(String.join(", ", req.getOrder()));
         }
 
-        // 4. OFFSET
-        int offset = req.getPagination().getPageIndex() * req.getPagination().getPageSize();
+        // 4. Pagination
+        int pageSize = req.getPagination().getPageSize();
+        int offset = req.getPagination().getPageIndex() * pageSize;
         sql.append(" OFFSET ").append(offset)
-                .append(" ROWS FETCH NEXT ").append(req.getPagination().getPageSize()).append(" ROWS ONLY");
+                .append(" ROWS FETCH NEXT ").append(pageSize)
+                .append(" ROWS ONLY");
 
         return sql.toString();
-    }
-
-    private List<Object> buildParams(DynamicQueryRequest req) {
-        List<Object> params = new ArrayList<>();
-        Map<String, Object> filters = req.getFiltered();
-        if (filters != null) {
-            for (Object value : filters.values()) {
-                if (value instanceof Map<?, ?> mapVal) {
-                    params.add(mapVal.get("from"));
-                    params.add(mapVal.get("to"));
-                } else {
-                    params.add(value);
-                }
-            }
-        }
-        return params;
     }
 }
