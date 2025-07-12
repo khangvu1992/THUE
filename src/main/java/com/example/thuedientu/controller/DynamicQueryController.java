@@ -50,6 +50,7 @@ public class DynamicQueryController {
         // WHERE
         appendWhereClause(sql, req.getFiltered(), params);
 
+
         // ORDER BY
         if (req.getOrder() != null && !req.getOrder().isEmpty()) {
             sql.append(" ORDER BY ").append(String.join(", ", req.getOrder()));
