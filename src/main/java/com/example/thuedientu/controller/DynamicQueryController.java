@@ -1,6 +1,7 @@
 package com.example.thuedientu.controller;
 
 import com.example.thuedientu.dto.DynamicQueryRequest;
+import com.example.thuedientu.dto.DynamicQueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,25 +20,60 @@ public class DynamicQueryController {
     private JdbcTemplate jdbcTemplate;
 
     @PostMapping("/find")
-    public ResponseEntity<List<Map<String, Object>>> search(@RequestBody DynamicQueryRequest request) {
+    public ResponseEntity<DynamicQueryResponse> search(@RequestBody DynamicQueryRequest request) {
+        // Truy vấn phân trang (data)
         List<Object> params = new ArrayList<>();
-        String sql = buildSql(request, params);
-        List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, params.toArray());
-        return ResponseEntity.ok(result);
+        String dataSql = buildDataSql(request, params);
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(dataSql, params.toArray());
+
+        // Truy vấn đếm total
+        List<Object> countParams = new ArrayList<>();
+        String countSql = buildCountSql(request, countParams);
+        Long total = jdbcTemplate.queryForObject(countSql, countParams.toArray(), Long.class);
+
+        // Trả về kết quả
+        DynamicQueryResponse response = new DynamicQueryResponse(data, total);
+        return ResponseEntity.ok(response);
     }
 
-    private String buildSql(DynamicQueryRequest req, List<Object> params) {
+    private String buildDataSql(DynamicQueryRequest req, List<Object> params) {
         StringBuilder sql = new StringBuilder();
 
-        // 1. SELECT fields
-        String selectFields = req.getSelectedFields() == null || req.getSelectedFields().isEmpty()
+        // SELECT
+        String selectFields = (req.getSelectedFields() == null || req.getSelectedFields().isEmpty())
                 ? "*"
                 : String.join(", ", req.getSelectedFields());
+
         sql.append("SELECT ").append(selectFields)
                 .append(" FROM ").append(req.getNameTable());
 
-        // 2. WHERE clause
-        Map<String, Object> filters = req.getFiltered();
+        // WHERE
+        appendWhereClause(sql, req.getFiltered(), params);
+
+        // ORDER BY
+        if (req.getOrder() != null && !req.getOrder().isEmpty()) {
+            sql.append(" ORDER BY ").append(String.join(", ", req.getOrder()));
+        }
+
+        // Pagination
+        int pageSize = req.getPagination().getPageSize();
+        int offset = req.getPagination().getPageIndex() * pageSize;
+        sql.append(" OFFSET ").append(offset)
+                .append(" ROWS FETCH NEXT ").append(pageSize)
+                .append(" ROWS ONLY");
+
+        return sql.toString();
+    }
+
+    private String buildCountSql(DynamicQueryRequest req, List<Object> params) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) FROM ").append(req.getNameTable());
+
+        appendWhereClause(sql, req.getFiltered(), params);
+        return sql.toString();
+    }
+
+    private void appendWhereClause(StringBuilder sql, Map<String, Object> filters, List<Object> params) {
         List<String> where = new ArrayList<>();
 
         if (filters != null) {
@@ -70,19 +106,5 @@ public class DynamicQueryController {
         if (!where.isEmpty()) {
             sql.append(" WHERE ").append(String.join(" AND ", where));
         }
-
-        // 3. ORDER BY
-        if (req.getOrder() != null && !req.getOrder().isEmpty()) {
-            sql.append(" ORDER BY ").append(String.join(", ", req.getOrder()));
-        }
-
-        // 4. Pagination
-        int pageSize = req.getPagination().getPageSize();
-        int offset = req.getPagination().getPageIndex() * pageSize;
-        sql.append(" OFFSET ").append(offset)
-                .append(" ROWS FETCH NEXT ").append(pageSize)
-                .append(" ROWS ONLY");
-
-        return sql.toString();
     }
 }
