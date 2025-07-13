@@ -2,10 +2,19 @@ package com.example.thuedientu.controller;
 
 import com.example.thuedientu.dto.DynamicQueryRequest;
 import com.example.thuedientu.dto.DynamicQueryResponse;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.io.ByteArrayOutputStream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,4 +117,86 @@ public class DynamicQueryController {
             sql.append(" WHERE ").append(String.join(" AND ", where));
         }
     }
+
+    @PostMapping("/export")
+    public ResponseEntity<byte[]> exportExcel(@RequestBody DynamicQueryRequest request) {
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+
+        // SELECT
+        String selectFields = (request.getSelectedFields() == null || request.getSelectedFields().isEmpty())
+                ? "*"
+                : String.join(", ", request.getSelectedFields());
+
+        sql.append("SELECT ").append(selectFields)
+                .append(" FROM ").append(request.getNameTable());
+
+        appendWhereClause(sql, request.getFiltered(), params);
+
+        try (
+                SXSSFWorkbook workbook = new SXSSFWorkbook(100); // giữ 100 dòng trong RAM
+                ByteArrayOutputStream out = new ByteArrayOutputStream()
+        ) {
+            final int MAX_ROWS_PER_SHEET = 1_000_000;
+            final List<String> headerNames = new ArrayList<>();
+
+            final int[] rowIndex = {0};       // dòng hiện tại trong sheet
+            final int[] sheetIndex = {1};     // số thứ tự của sheet
+            Sheet[] sheet = {workbook.createSheet("Export_" + sheetIndex[0])};
+
+            jdbcTemplate.query(sql.toString(), params.toArray(), rs -> {
+                int colCount = rs.getMetaData().getColumnCount();
+
+                // Ghi header nếu lần đầu hoặc tạo sheet mới
+                if (rowIndex[0] == 0) {
+                    Row headerRow = sheet[0].createRow(rowIndex[0]++);
+                    headerNames.clear(); // clear trước khi thêm mới
+
+                    for (int i = 1; i <= colCount; i++) {
+                        String colName = rs.getMetaData().getColumnLabel(i);
+                        headerNames.add(colName);
+                        headerRow.createCell(i - 1).setCellValue(colName);
+                    }
+                }
+
+                // Nếu đạt giới hạn thì tạo sheet mới và ghi header
+                if (rowIndex[0] >= MAX_ROWS_PER_SHEET) {
+                    sheetIndex[0]++;
+                    sheet[0] = workbook.createSheet("Export_" + sheetIndex[0]);
+                    rowIndex[0] = 0;
+
+                    Row newHeader = sheet[0].createRow(rowIndex[0]++);
+                    for (int i = 0; i < headerNames.size(); i++) {
+                        newHeader.createCell(i).setCellValue(headerNames.get(i));
+                    }
+                }
+
+                // Ghi dòng dữ liệu
+                Row row = sheet[0].createRow(rowIndex[0]++);
+                for (int i = 0; i < headerNames.size(); i++) {
+                    Object value = rs.getObject(headerNames.get(i));
+                    row.createCell(i).setCellValue(value != null ? value.toString() : "");
+                }
+            });
+
+            workbook.write(out);
+            workbook.dispose(); // Xoá file tạm
+
+            byte[] excelBytes = out.toByteArray();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=export.xlsx");
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(excelBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+
 }
