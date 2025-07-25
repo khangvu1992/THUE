@@ -91,6 +91,7 @@ public class DynamicQueryController {
                 String field = entry.getKey();
                 Object val = entry.getValue();
 
+                // Trường hợp khoảng from/to
                 if (val instanceof Map<?, ?> mapVal) {
                     Object from = mapVal.get("from");
                     Object to = mapVal.get("to");
@@ -104,10 +105,26 @@ public class DynamicQueryController {
                         where.add(field + " <= ?");
                         params.add(to);
                     }
-                } else {
-                    if (val != null && !val.toString().isBlank()) {
-                        where.add(field + " = ?");
-                        params.add(val);
+
+                } else if (val != null) {
+                    String trimmedVal = val.toString().trim();
+                    if (!trimmedVal.isEmpty()) {
+                        long dollarCount = trimmedVal.chars().filter(ch -> ch == '$').count();
+                        String keyword = trimmedVal.replace("$", "").toLowerCase();
+
+                        if (dollarCount == 1) {
+                            // LIKE %xxx%
+                            where.add("LOWER(" + field + ") LIKE ?");
+                            params.add("%" + keyword + "%");
+                        } else if (dollarCount >= 2) {
+                            // LIKE xxx%
+                            where.add("LOWER(" + field + ") LIKE ?");
+                            params.add(keyword + "%");
+                        } else {
+                            // So sánh bằng
+                            where.add(field + " = ?");
+                            params.add(trimmedVal);
+                        }
                     }
                 }
             }
@@ -117,6 +134,7 @@ public class DynamicQueryController {
             sql.append(" WHERE ").append(String.join(" AND ", where));
         }
     }
+
 
     @PostMapping("/export")
     public ResponseEntity<byte[]> exportExcel(@RequestBody DynamicQueryRequest request) {
