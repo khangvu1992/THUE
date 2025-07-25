@@ -33,12 +33,10 @@ public class DynamicQueryController {
 
         List<Object> countParams = new ArrayList<>();
         String countSql = buildCountSql(request, countParams);
-        String countUniqueSoToKhaiSql= buildCountUniqueSoToKhaiSql(request, countParams);
 
         Long total = jdbcTemplate.queryForObject(countSql, countParams.toArray(), Long.class);
-        Long totalUniqueSoToKhaiSql = jdbcTemplate.queryForObject(countUniqueSoToKhaiSql, countParams.toArray(), Long.class);
 
-        return ResponseEntity.ok(new DynamicQueryResponse(data, total,totalUniqueSoToKhaiSql));
+        return ResponseEntity.ok(new DynamicQueryResponse(data, total));
     }
 
     private String buildDataSql(DynamicQueryRequest req, List<Object> params) {
@@ -93,26 +91,26 @@ public class DynamicQueryController {
         return sql.toString();
     }
 
-    private String buildCountUniqueSoToKhaiSql(DynamicQueryRequest req, List<Object> params) {
-        StringBuilder sql = new StringBuilder();
-
-        sql.append("SELECT COUNT(DISTINCT ").append(req.getDuplicateColumn()).append(") FROM (")
-                .append("SELECT * FROM ").append(req.getNameTable()).append(" WHERE 1=1");
-
-        appendWhereClause(sql, req.getFiltered(), params);
-
-        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
-            String col = req.getDuplicateColumn();
-            sql.append(" AND ").append(col).append(" IN (")
-                    .append("SELECT MAX(").append(col).append(") FROM ")
-                    .append(req.getNameTable())
-                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
-        }
-
-        sql.append(") AS filtered_data");
-
-        return sql.toString();
-    }
+//    private String buildCountUniqueSoToKhaiSql(DynamicQueryRequest req, List<Object> params) {
+//        StringBuilder sql = new StringBuilder();
+//
+//        sql.append("SELECT COUNT(DISTINCT ").append(req.getDuplicateColumn()).append(") FROM (")
+//                .append("SELECT * FROM ").append(req.getNameTable()).append(" WHERE 1=1");
+//
+//        appendWhereClause(sql, req.getFiltered(), params);
+//
+//        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
+//            String col = req.getDuplicateColumn();
+//            sql.append(" AND ").append(col).append(" IN (")
+//                    .append("SELECT MAX(").append(col).append(") FROM ")
+//                    .append(req.getNameTable())
+//                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
+//        }
+//
+//        sql.append(") AS filtered_data");
+//
+//        return sql.toString();
+//    }
 
 
     private void appendWhereClause(StringBuilder sql, Map<String, Object> filters, List<Object> params) {
