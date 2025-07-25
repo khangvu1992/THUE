@@ -16,20 +16,13 @@ public class DynamicQueryRequest {
     private Map<String, Object> filtered;
     private List<String> order;
     private Pagination pagination;
+    private boolean removeDuplicate; // Thêm thuộc tính để lọc trùng tờ khai
 
-    // getters and setters
-
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Pagination {
         private int pageIndex;
         private int pageSize;
-
-        public int getPageIndex() {
-            return  pageIndex;
-        }
-
-        public int getPageSize() {
-            return pageSize;
-        }
-        // getters and setters
     }
 }

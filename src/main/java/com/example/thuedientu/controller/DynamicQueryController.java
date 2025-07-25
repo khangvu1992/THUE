@@ -4,18 +4,15 @@ import com.example.thuedientu.dto.DynamicQueryRequest;
 import com.example.thuedientu.dto.DynamicQueryResponse;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import java.io.ByteArrayOutputStream;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,17 +27,14 @@ public class DynamicQueryController {
 
     @PostMapping("/find")
     public ResponseEntity<DynamicQueryResponse> search(@RequestBody DynamicQueryRequest request) {
-        // Truy vấn phân trang (data)
         List<Object> params = new ArrayList<>();
         String dataSql = buildDataSql(request, params);
         List<Map<String, Object>> data = jdbcTemplate.queryForList(dataSql, params.toArray());
 
-        // Truy vấn đếm total
         List<Object> countParams = new ArrayList<>();
         String countSql = buildCountSql(request, countParams);
         Long total = jdbcTemplate.queryForObject(countSql, countParams.toArray(), Long.class);
 
-        // Trả về kết quả
         DynamicQueryResponse response = new DynamicQueryResponse(data, total);
         return ResponseEntity.ok(response);
     }
@@ -48,7 +42,6 @@ public class DynamicQueryController {
     private String buildDataSql(DynamicQueryRequest req, List<Object> params) {
         StringBuilder sql = new StringBuilder();
 
-        // SELECT
         String selectFields = (req.getSelectedFields() == null || req.getSelectedFields().isEmpty())
                 ? "*"
                 : String.join(", ", req.getSelectedFields());
@@ -56,16 +49,27 @@ public class DynamicQueryController {
         sql.append("SELECT ").append(selectFields)
                 .append(" FROM ").append(req.getNameTable());
 
-        // WHERE
         appendWhereClause(sql, req.getFiltered(), params);
 
+        if (req.isRemoveDuplicate()) {
+            sql.append(" AND ").append(req.getNameTable()).append(".so_to_khai IN (")
+                    .append("SELECT MAX(so_to_khai) FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(so_to_khai, 11))");
+        }
 
-        // ORDER BY
+        if (req.isRemoveDuplicate()) {
+            sql.append(" AND ").append(req.getNameTable()).append(".sotk IN (")
+                    .append("SELECT MAX(sotk) FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(sotk, 11))");
+        }
+
+
         if (req.getOrder() != null && !req.getOrder().isEmpty()) {
             sql.append(" ORDER BY ").append(String.join(", ", req.getOrder()));
         }
 
-        // Pagination
         int pageSize = req.getPagination().getPageSize();
         int offset = req.getPagination().getPageIndex() * pageSize;
         sql.append(" OFFSET ").append(offset)
@@ -80,6 +84,20 @@ public class DynamicQueryController {
         sql.append("SELECT COUNT(*) FROM ").append(req.getNameTable());
 
         appendWhereClause(sql, req.getFiltered(), params);
+
+        if (req.isRemoveDuplicate()) {
+            sql.append(" AND ").append(req.getNameTable()).append(".so_to_khai IN (")
+                    .append("SELECT MAX(so_to_khai) FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(so_to_khai, 11))");
+        }
+        if (req.isRemoveDuplicate()) {
+            sql.append(" AND ").append(req.getNameTable()).append(".sotk IN (")
+                    .append("SELECT MAX(sotk) FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(sotk, 11))");
+        }
+
         return sql.toString();
     }
 
@@ -91,7 +109,6 @@ public class DynamicQueryController {
                 String field = entry.getKey();
                 Object val = entry.getValue();
 
-                // Trường hợp khoảng from/to
                 if (val instanceof Map<?, ?> mapVal) {
                     Object from = mapVal.get("from");
                     Object to = mapVal.get("to");
@@ -100,12 +117,10 @@ public class DynamicQueryController {
                         where.add(field + " >= ?");
                         params.add(from);
                     }
-
                     if (to != null && !to.toString().isBlank()) {
                         where.add(field + " <= ?");
                         params.add(to);
                     }
-
                 } else if (val != null) {
                     String trimmedVal = val.toString().trim();
                     if (!trimmedVal.isEmpty()) {
@@ -113,15 +128,12 @@ public class DynamicQueryController {
                         String keyword = trimmedVal.replace("$", "").toLowerCase();
 
                         if (dollarCount == 1) {
-                            // LIKE %xxx%
                             where.add("LOWER(" + field + ") LIKE ?");
                             params.add("%" + keyword + "%");
                         } else if (dollarCount >= 2) {
-                            // LIKE xxx%
                             where.add("LOWER(" + field + ") LIKE ?");
                             params.add(keyword + "%");
                         } else {
-                            // So sánh bằng
                             where.add(field + " = ?");
                             params.add(trimmedVal);
                         }
@@ -135,13 +147,11 @@ public class DynamicQueryController {
         }
     }
 
-
     @PostMapping("/export")
     public ResponseEntity<byte[]> exportExcel(@RequestBody DynamicQueryRequest request) {
         List<Object> params = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
 
-        // SELECT
         String selectFields = (request.getSelectedFields() == null || request.getSelectedFields().isEmpty())
                 ? "*"
                 : String.join(", ", request.getSelectedFields());
@@ -151,25 +161,29 @@ public class DynamicQueryController {
 
         appendWhereClause(sql, request.getFiltered(), params);
 
+        if (request.isRemoveDuplicate()) {
+            sql.append(" AND ").append(request.getNameTable()).append(".so_to_khai IN (")
+                    .append("SELECT MAX(so_to_khai) FROM ")
+                    .append(request.getNameTable())
+                    .append(" GROUP BY LEFT(so_to_khai, 11))");
+        }
+
         try (
-                SXSSFWorkbook workbook = new SXSSFWorkbook(100); // giữ 100 dòng trong RAM
+                SXSSFWorkbook workbook = new SXSSFWorkbook(100);
                 ByteArrayOutputStream out = new ByteArrayOutputStream()
         ) {
             final int MAX_ROWS_PER_SHEET = 1_000_000;
             final List<String> headerNames = new ArrayList<>();
-
-            final int[] rowIndex = {0};       // dòng hiện tại trong sheet
-            final int[] sheetIndex = {1};     // số thứ tự của sheet
+            final int[] rowIndex = {0};
+            final int[] sheetIndex = {1};
             Sheet[] sheet = {workbook.createSheet("Export_" + sheetIndex[0])};
 
             jdbcTemplate.query(sql.toString(), params.toArray(), rs -> {
                 int colCount = rs.getMetaData().getColumnCount();
 
-                // Ghi header nếu lần đầu hoặc tạo sheet mới
                 if (rowIndex[0] == 0) {
                     Row headerRow = sheet[0].createRow(rowIndex[0]++);
-                    headerNames.clear(); // clear trước khi thêm mới
-
+                    headerNames.clear();
                     for (int i = 1; i <= colCount; i++) {
                         String colName = rs.getMetaData().getColumnLabel(i);
                         headerNames.add(colName);
@@ -177,19 +191,16 @@ public class DynamicQueryController {
                     }
                 }
 
-                // Nếu đạt giới hạn thì tạo sheet mới và ghi header
                 if (rowIndex[0] >= MAX_ROWS_PER_SHEET) {
                     sheetIndex[0]++;
                     sheet[0] = workbook.createSheet("Export_" + sheetIndex[0]);
                     rowIndex[0] = 0;
-
                     Row newHeader = sheet[0].createRow(rowIndex[0]++);
                     for (int i = 0; i < headerNames.size(); i++) {
                         newHeader.createCell(i).setCellValue(headerNames.get(i));
                     }
                 }
 
-                // Ghi dòng dữ liệu
                 Row row = sheet[0].createRow(rowIndex[0]++);
                 for (int i = 0; i < headerNames.size(); i++) {
                     Object value = rs.getObject(headerNames.get(i));
@@ -198,23 +209,18 @@ public class DynamicQueryController {
             });
 
             workbook.write(out);
-            workbook.dispose(); // Xoá file tạm
+            workbook.dispose();
 
             byte[] excelBytes = out.toByteArray();
-
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=export.xlsx");
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(excelBytes);
+            return ResponseEntity.ok().headers(headers).body(excelBytes);
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
-
-
 }
