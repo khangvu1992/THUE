@@ -13,4 +13,5 @@ import java.util.Map;
 public class DynamicQueryResponse {
     private List<Map<String, Object>> data;
     private long total;
+    private long totalUniqueSoToKhaiSql;
 }
