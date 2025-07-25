@@ -16,7 +16,9 @@ public class DynamicQueryRequest {
     private Map<String, Object> filtered;
     private List<String> order;
     private Pagination pagination;
-    private boolean removeDuplicate; // Thêm thuộc tính để lọc trùng tờ khai
+    private boolean removeDuplicate;
+    private String duplicateColumn; // getter + setter
+// Thêm thuộc tính để lọc trùng tờ khai
 
     @Data
     @AllArgsConstructor

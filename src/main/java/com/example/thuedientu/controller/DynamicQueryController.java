@@ -35,8 +35,7 @@ public class DynamicQueryController {
         String countSql = buildCountSql(request, countParams);
         Long total = jdbcTemplate.queryForObject(countSql, countParams.toArray(), Long.class);
 
-        DynamicQueryResponse response = new DynamicQueryResponse(data, total);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new DynamicQueryResponse(data, total));
     }
 
     private String buildDataSql(DynamicQueryRequest req, List<Object> params) {
@@ -47,24 +46,18 @@ public class DynamicQueryController {
                 : String.join(", ", req.getSelectedFields());
 
         sql.append("SELECT ").append(selectFields)
-                .append(" FROM ").append(req.getNameTable());
+                .append(" FROM ").append(req.getNameTable())
+                .append(" WHERE 1=1");
 
         appendWhereClause(sql, req.getFiltered(), params);
 
-        if (req.isRemoveDuplicate()) {
-            sql.append(" AND ").append(req.getNameTable()).append(".so_to_khai IN (")
-                    .append("SELECT MAX(so_to_khai) FROM ")
+        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
+            String col = req.getDuplicateColumn();
+            sql.append(" AND ").append(req.getNameTable()).append(".").append(col).append(" IN (")
+                    .append("SELECT MAX(").append(col).append(") FROM ")
                     .append(req.getNameTable())
-                    .append(" GROUP BY LEFT(so_to_khai, 11))");
+                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
         }
-
-        if (req.isRemoveDuplicate()) {
-            sql.append(" AND ").append(req.getNameTable()).append(".sotk IN (")
-                    .append("SELECT MAX(sotk) FROM ")
-                    .append(req.getNameTable())
-                    .append(" GROUP BY LEFT(sotk, 11))");
-        }
-
 
         if (req.getOrder() != null && !req.getOrder().isEmpty()) {
             sql.append(" ORDER BY ").append(String.join(", ", req.getOrder()));
@@ -81,21 +74,17 @@ public class DynamicQueryController {
 
     private String buildCountSql(DynamicQueryRequest req, List<Object> params) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) FROM ").append(req.getNameTable());
+        sql.append("SELECT COUNT(*) FROM ").append(req.getNameTable())
+                .append(" WHERE 1=1");
 
         appendWhereClause(sql, req.getFiltered(), params);
 
-        if (req.isRemoveDuplicate()) {
-            sql.append(" AND ").append(req.getNameTable()).append(".so_to_khai IN (")
-                    .append("SELECT MAX(so_to_khai) FROM ")
+        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
+            String col = req.getDuplicateColumn();
+            sql.append(" AND ").append(req.getNameTable()).append(".").append(col).append(" IN (")
+                    .append("SELECT MAX(").append(col).append(") FROM ")
                     .append(req.getNameTable())
-                    .append(" GROUP BY LEFT(so_to_khai, 11))");
-        }
-        if (req.isRemoveDuplicate()) {
-            sql.append(" AND ").append(req.getNameTable()).append(".sotk IN (")
-                    .append("SELECT MAX(sotk) FROM ")
-                    .append(req.getNameTable())
-                    .append(" GROUP BY LEFT(sotk, 11))");
+                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
         }
 
         return sql.toString();
@@ -143,7 +132,7 @@ public class DynamicQueryController {
         }
 
         if (!where.isEmpty()) {
-            sql.append(" WHERE ").append(String.join(" AND ", where));
+            sql.append(" AND ").append(String.join(" AND ", where));
         }
     }
 
@@ -157,15 +146,17 @@ public class DynamicQueryController {
                 : String.join(", ", request.getSelectedFields());
 
         sql.append("SELECT ").append(selectFields)
-                .append(" FROM ").append(request.getNameTable());
+                .append(" FROM ").append(request.getNameTable())
+                .append(" WHERE 1=1");
 
         appendWhereClause(sql, request.getFiltered(), params);
 
-        if (request.isRemoveDuplicate()) {
-            sql.append(" AND ").append(request.getNameTable()).append(".so_to_khai IN (")
-                    .append("SELECT MAX(so_to_khai) FROM ")
+        if (request.isRemoveDuplicate() && request.getDuplicateColumn() != null && !request.getDuplicateColumn().isBlank()) {
+            String col = request.getDuplicateColumn();
+            sql.append(" AND ").append(request.getNameTable()).append(".").append(col).append(" IN (")
+                    .append("SELECT MAX(").append(col).append(") FROM ")
                     .append(request.getNameTable())
-                    .append(" GROUP BY LEFT(so_to_khai, 11))");
+                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
         }
 
         try (
@@ -211,12 +202,11 @@ public class DynamicQueryController {
             workbook.write(out);
             workbook.dispose();
 
-            byte[] excelBytes = out.toByteArray();
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=export.xlsx");
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
-            return ResponseEntity.ok().headers(headers).body(excelBytes);
+            return ResponseEntity.ok().headers(headers).body(out.toByteArray());
 
         } catch (Exception e) {
             e.printStackTrace();
