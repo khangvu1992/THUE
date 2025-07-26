@@ -27,16 +27,37 @@ public class DynamicQueryController {
 
     @PostMapping("/find")
     public ResponseEntity<DynamicQueryResponse> search(@RequestBody DynamicQueryRequest request) {
-        List<Object> params = new ArrayList<>();
-        String dataSql = buildDataSql(request, params);
-        List<Map<String, Object>> data = jdbcTemplate.queryForList(dataSql, params.toArray());
+        List<Object> dataParams = new ArrayList<>();
+        String dataSql = buildDataSql(request, dataParams);
+        List<Map<String, Object>> data = jdbcTemplate.queryForList(dataSql, dataParams.toArray());
 
         List<Object> countParams = new ArrayList<>();
         String countSql = buildCountSql(request, countParams);
-
         Long total = jdbcTemplate.queryForObject(countSql, countParams.toArray(), Long.class);
 
-        return ResponseEntity.ok(new DynamicQueryResponse(data, total));
+        // Xử lý loại bỏ trùng
+        String dupCol = request.getDuplicateColumn();
+        if (dupCol != null && !dupCol.isBlank() && (dupCol.equals("sotk") || dupCol.equals("so_to_khai"))) {
+            // Dùng params RIÊNG biệt
+            List<Object> uniqueCountParams = new ArrayList<>();
+            String countUniqueSql = buildCountUniqueSoToKhaiSql(request, uniqueCountParams);
+            Long totalUnique = jdbcTemplate.queryForObject(countUniqueSql, uniqueCountParams.toArray(), Long.class);
+
+            // Lấy danh sách mã số thuế không trùng
+            String taxCodeField = dupCol.equals("sotk") ? "masothue_Kbhq" : "ma_nguoi_xuat_khau";
+            List<Object> listFirmParams = new ArrayList<>();
+            String listFirmSql = buildDistinctListSqlFirm(request, listFirmParams, taxCodeField);
+            List<Map<String, Object>> taxCodeList = jdbcTemplate.queryForList(listFirmSql, listFirmParams.toArray());
+
+            String codeVolumTax = dupCol.equals("sotk") ? "tong_Tri_Gia_Hoa_Don" : "tong_tri_gia_hoa_don";
+            String countVolumTax = buildSumColumnSql(request, listFirmParams,codeVolumTax);
+            Long totalVolumTax = jdbcTemplate.queryForObject(countVolumTax, uniqueCountParams.toArray(), Long.class);
+
+            return ResponseEntity.ok(new DynamicQueryResponse(data, total, totalUnique, taxCodeList,totalVolumTax));
+        }
+
+        // Trường hợp không trùng
+        return ResponseEntity.ok(new DynamicQueryResponse(data, total, 0L, null,0));
     }
 
     private String buildDataSql(DynamicQueryRequest req, List<Object> params) {
@@ -91,26 +112,74 @@ public class DynamicQueryController {
         return sql.toString();
     }
 
-//    private String buildCountUniqueSoToKhaiSql(DynamicQueryRequest req, List<Object> params) {
-//        StringBuilder sql = new StringBuilder();
-//
-//        sql.append("SELECT COUNT(DISTINCT ").append(req.getDuplicateColumn()).append(") FROM (")
-//                .append("SELECT * FROM ").append(req.getNameTable()).append(" WHERE 1=1");
-//
-//        appendWhereClause(sql, req.getFiltered(), params);
-//
-//        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
-//            String col = req.getDuplicateColumn();
-//            sql.append(" AND ").append(col).append(" IN (")
-//                    .append("SELECT MAX(").append(col).append(") FROM ")
-//                    .append(req.getNameTable())
-//                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
-//        }
-//
-//        sql.append(") AS filtered_data");
-//
-//        return sql.toString();
-//    }
+    private String buildCountUniqueSoToKhaiSql(DynamicQueryRequest req, List<Object> params) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("SELECT COUNT(DISTINCT ").append(req.getDuplicateColumn()).append(") FROM (")
+                .append("SELECT * FROM ").append(req.getNameTable()).append(" WHERE 1=1");
+
+        appendWhereClause(sql, req.getFiltered(), params);
+
+        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
+            String col = req.getDuplicateColumn();
+            sql.append(" AND ").append(col).append(" IN (")
+                    .append("SELECT MAX(").append(col).append(") FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
+        }
+
+        sql.append(") AS filtered_data");
+
+        return sql.toString();
+    }
+
+    private String buildDistinctListSqlFirm(DynamicQueryRequest req, List<Object> params, String name) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("SELECT DISTINCT ").append(name)
+                .append(" FROM ").append(req.getNameTable())
+                .append(" WHERE 1=1");
+
+        // Thêm điều kiện lọc nếu có
+        appendWhereClause(sql, req.getFiltered(), params);
+
+        // Xử lý loại bỏ trùng lặp theo dupCol nếu được bật
+        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
+            String col = req.getDuplicateColumn();
+            sql.append(" AND ").append(col).append(" IN (")
+                    .append("SELECT MAX(").append(col).append(") FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
+        }
+
+        return sql.toString();
+    }
+
+    private String buildSumColumnSql(DynamicQueryRequest req, List<Object> params, String name) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("SELECT SUM(").append(name).append(") FROM ").append(req.getNameTable())
+                .append(" WHERE 1=1");
+
+        // Thêm điều kiện lọc nếu có
+        appendWhereClause(sql, req.getFiltered(), params);
+
+        // Xử lý loại bỏ trùng lặp theo dupCol nếu được bật
+        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
+            String col = req.getDuplicateColumn();
+            sql.append(" AND ").append(col).append(" IN (")
+                    .append("SELECT MAX(").append(col).append(") FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
+        }
+
+        return sql.toString();
+    }
+
+
+
+
+
 
 
     private void appendWhereClause(StringBuilder sql, Map<String, Object> filters, List<Object> params) {
