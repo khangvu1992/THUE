@@ -51,7 +51,7 @@ public class DynamicQueryController {
 
             List<Object> uniqueCountParams2 = new ArrayList<>();
             String codeVolumTax = dupCol.equals("sotk") ? "tong_Tri_Gia_Tinh_Thue" : "tong_tri_gia_tinh_thue";
-            String countVolumTax = buildSumColumnSql(request, listFirmParams,codeVolumTax);
+            String countVolumTax = buildSumColumnSql(request, uniqueCountParams2,codeVolumTax);
             Long totalVolumTax = jdbcTemplate.queryForObject(countVolumTax, uniqueCountParams2.toArray(), Long.class);
 
             String totalTaxCodeField = dupCol.equals("sotk") ? "masothue_Kbhq" : "ma_nguoi_xuat_khau";
