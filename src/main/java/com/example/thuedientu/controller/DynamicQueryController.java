@@ -49,15 +49,40 @@ public class DynamicQueryController {
             String listFirmSql = buildDistinctListSqlFirm(request, listFirmParams, taxCodeField);
             List<Map<String, Object>> taxCodeList = jdbcTemplate.queryForList(listFirmSql, listFirmParams.toArray());
 
-            String codeVolumTax = dupCol.equals("sotk") ? "tong_Tri_Gia_Hoa_Don" : "tong_tri_gia_hoa_don";
+            List<Object> uniqueCountParams2 = new ArrayList<>();
+            String codeVolumTax = dupCol.equals("sotk") ? "tong_Tri_Gia_Tinh_Thue" : "tong_tri_gia_tinh_thue";
             String countVolumTax = buildSumColumnSql(request, listFirmParams,codeVolumTax);
-            Long totalVolumTax = jdbcTemplate.queryForObject(countVolumTax, uniqueCountParams.toArray(), Long.class);
+            Long totalVolumTax = jdbcTemplate.queryForObject(countVolumTax, uniqueCountParams2.toArray(), Long.class);
 
-            return ResponseEntity.ok(new DynamicQueryResponse(data, total, totalUnique, taxCodeList,totalVolumTax));
+            String totalTaxCodeField = dupCol.equals("sotk") ? "masothue_Kbhq" : "ma_nguoi_xuat_khau";
+            String totalTaxCodeField2 = dupCol.equals("sotk") ? "tong_Tri_Gia_Tinh_Thue" : "tong_tri_gia_tinh_thue";
+
+            List<Object> totallistFirmParams = new ArrayList<>();
+            String totallistFirmSql = buildTopCodeThueByGroupSumColumnSql(request, totallistFirmParams, totalTaxCodeField,totalTaxCodeField2,10,true);
+            List<Map<String, Object>> top5codethuetotaltaxCodeList = jdbcTemplate.queryForList(totallistFirmSql, totallistFirmParams.toArray());
+
+            String maLoaiHinh = dupCol.equals("sotk") ? "malh" : "ma_loai_hinh";
+            List<Object> totalmaLoaiHinh = new ArrayList<>();
+            String totalMaLoaiHinhSql = buildTopCodeThueByGroupSumColumnSql(request, totalmaLoaiHinh, maLoaiHinh,totalTaxCodeField2,10,false);
+            List<Map<String, Object>> top5totalMaLoaiHinh = jdbcTemplate.queryForList(totalMaLoaiHinhSql, totalmaLoaiHinh.toArray());
+
+            String maHScode = dupCol.equals("sotk") ? "hs_Code" : "ma_so_hang_hoa";
+            List<Object> totalmaHScode = new ArrayList<>();
+            String totalmaHScodeSql  = buildTopCodeThueByGroupSumColumnSql(request, totalmaHScode, maHScode,totalTaxCodeField2,10,false);
+            System.out.println(totalmaHScodeSql);
+            List<Map<String, Object>> top5totalmaHScode  = jdbcTemplate.queryForList(totalmaHScodeSql, totalmaHScode.toArray());
+
+            String maSotk = dupCol.equals("sotk") ? "sotk" : "so_to_khai";
+            List<Object> totamaSotk = new ArrayList<>();
+            String totalmaSotkSql  = buildTopCodeThueByGroupSumColumnSql(request, totamaSotk, maSotk,totalTaxCodeField2,10,false);
+            List<Map<String, Object>> top5totalmaSotk  = jdbcTemplate.queryForList(totalmaSotkSql, totamaSotk.toArray());
+
+
+            return ResponseEntity.ok(new DynamicQueryResponse(data, total, totalUnique, taxCodeList,totalVolumTax,top5codethuetotaltaxCodeList,top5totalMaLoaiHinh,top5totalmaHScode,top5totalmaSotk));
         }
 
         // Trường hợp không trùng
-        return ResponseEntity.ok(new DynamicQueryResponse(data, total, 0L, null,0));
+        return ResponseEntity.ok(new DynamicQueryResponse(data, total, 0, null,0,null,null,null,null));
     }
 
     private String buildDataSql(DynamicQueryRequest req, List<Object> params) {
@@ -172,6 +197,40 @@ public class DynamicQueryController {
                     .append(req.getNameTable())
                     .append(" GROUP BY LEFT(").append(col).append(", 11))");
         }
+
+        return sql.toString();
+    }
+
+
+    private String buildTopCodeThueByGroupSumColumnSql(
+            DynamicQueryRequest req,
+            List<Object> params,
+            String name,
+            String name2,
+            int top,
+            boolean asc
+    ) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("SELECT TOP ").append(top).append(" ").append(name)
+                .append(", SUM(").append(name2).append(") AS tong_gia_tri ")
+                .append("FROM ").append(req.getNameTable())
+                .append(" WHERE 1=1");
+
+        // Thêm điều kiện lọc nếu có
+        appendWhereClause(sql, req.getFiltered(), params);
+
+        // Xử lý loại bỏ trùng lặp
+        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
+            String col = req.getDuplicateColumn();
+            sql.append(" AND ").append(col).append(" IN (")
+                    .append("SELECT MAX(").append(col).append(") FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
+        }
+
+        sql.append(" GROUP BY ").append(name)
+                .append(" ORDER BY tong_gia_tri ").append(asc ? "ASC" : "DESC");
 
         return sql.toString();
     }

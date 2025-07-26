@@ -16,6 +16,12 @@ public class DynamicQueryResponse {
     private long totalUniqueSoToKhaiSql;
     private List<Map<String, Object>>   distinctList;
     private long trihoadon;
+    private List<Map<String, Object>>   top5codethue;
+    private List<Map<String, Object>>   top5totalMaLoaiHinh;
+    private List<Map<String, Object>>   top5totalmaHScode;
+    private List<Map<String, Object>>   top5totalmaSotk;
+
+
 
     ;
 
