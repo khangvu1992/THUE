@@ -57,28 +57,28 @@ public class DynamicQueryController {
             String totalTaxCodeField = dupCol.equals("sotk") ? "masothue_Kbhq" : "ma_nguoi_xuat_khau";
             String totalTaxCodeField2 = dupCol.equals("sotk") ? "tong_Tri_Gia_Tinh_Thue" : "tong_tri_gia_tinh_thue";
 
-            List<Object> totallistFirmParams = new ArrayList<>();
-            String totallistFirmSql = buildTopCodeThueByGroupSumColumnSql(request, totallistFirmParams, totalTaxCodeField,totalTaxCodeField2,10,false);
-            List<Map<String, Object>> top5codethuetotaltaxCodeList = jdbcTemplate.queryForList(totallistFirmSql, totallistFirmParams.toArray());
+//            List<Object> totallistFirmParams = new ArrayList<>();
+//            String totallistFirmSql = buildTopCodeThueByGroupSumColumnSql(request, totallistFirmParams, totalTaxCodeField,totalTaxCodeField2,10,false);
+//            List<Map<String, Object>> top5codethuetotaltaxCodeList = jdbcTemplate.queryForList(totallistFirmSql, totallistFirmParams.toArray());
+//
+//            String maLoaiHinh = dupCol.equals("sotk") ? "malh" : "ma_loai_hinh";
+//            List<Object> totalmaLoaiHinh = new ArrayList<>();
+//            String totalMaLoaiHinhSql = buildTopCodeThueByGroupSumColumnSql(request, totalmaLoaiHinh, maLoaiHinh,totalTaxCodeField2,10,false);
+//            List<Map<String, Object>> top5totalMaLoaiHinh = jdbcTemplate.queryForList(totalMaLoaiHinhSql, totalmaLoaiHinh.toArray());
+//
+//            String maHScode = dupCol.equals("sotk") ? "hs_Code" : "ma_so_hang_hoa";
+//            List<Object> totalmaHScode = new ArrayList<>();
+//            String totalmaHScodeSql  = buildTopCodeThueByGroupSumColumnSql(request, totalmaHScode, maHScode,totalTaxCodeField2,10,false);
+//            System.out.println(totalmaHScodeSql);
+//            List<Map<String, Object>> top5totalmaHScode  = jdbcTemplate.queryForList(totalmaHScodeSql, totalmaHScode.toArray());
+//
+//            String maSotk = dupCol.equals("sotk") ? "sotk" : "so_to_khai";
+//            List<Object> totamaSotk = new ArrayList<>();
+//            String totalmaSotkSql  = buildTopCodeThueByGroupSumColumnSql(request, totamaSotk, maSotk,totalTaxCodeField2,10,false);
+//            List<Map<String, Object>> top5totalmaSotk  = jdbcTemplate.queryForList(totalmaSotkSql, totamaSotk.toArray());
 
-            String maLoaiHinh = dupCol.equals("sotk") ? "malh" : "ma_loai_hinh";
-            List<Object> totalmaLoaiHinh = new ArrayList<>();
-            String totalMaLoaiHinhSql = buildTopCodeThueByGroupSumColumnSql(request, totalmaLoaiHinh, maLoaiHinh,totalTaxCodeField2,10,false);
-            List<Map<String, Object>> top5totalMaLoaiHinh = jdbcTemplate.queryForList(totalMaLoaiHinhSql, totalmaLoaiHinh.toArray());
 
-            String maHScode = dupCol.equals("sotk") ? "hs_Code" : "ma_so_hang_hoa";
-            List<Object> totalmaHScode = new ArrayList<>();
-            String totalmaHScodeSql  = buildTopCodeThueByGroupSumColumnSql(request, totalmaHScode, maHScode,totalTaxCodeField2,10,false);
-            System.out.println(totalmaHScodeSql);
-            List<Map<String, Object>> top5totalmaHScode  = jdbcTemplate.queryForList(totalmaHScodeSql, totalmaHScode.toArray());
-
-            String maSotk = dupCol.equals("sotk") ? "sotk" : "so_to_khai";
-            List<Object> totamaSotk = new ArrayList<>();
-            String totalmaSotkSql  = buildTopCodeThueByGroupSumColumnSql(request, totamaSotk, maSotk,totalTaxCodeField2,10,false);
-            List<Map<String, Object>> top5totalmaSotk  = jdbcTemplate.queryForList(totalmaSotkSql, totamaSotk.toArray());
-
-
-            return ResponseEntity.ok(new DynamicQueryResponse(data, total, totalUnique, taxCodeList,totalVolumTax,top5codethuetotaltaxCodeList,top5totalMaLoaiHinh,top5totalmaHScode,top5totalmaSotk));
+            return ResponseEntity.ok(new DynamicQueryResponse(data, total, totalUnique, taxCodeList,totalVolumTax,null,null,null,null));
         }
 
         // Trường hợp không trùng
@@ -97,49 +97,51 @@ public class DynamicQueryController {
 //        Long total = jdbcTemplate.queryForObject(countSql, countParams.toArray(), Long.class);
 
         // Xử lý loại bỏ trùng
+        Integer top =request.getTop();
+        Boolean asc=request.getAsc();
         String dupCol = request.getDuplicateColumn();
         if (dupCol != null && !dupCol.isBlank() && (dupCol.equals("sotk") || dupCol.equals("so_to_khai"))) {
-            // Dùng params RIÊNG biệt
-            List<Object> uniqueCountParams = new ArrayList<>();
-            String countUniqueSql = buildCountUniqueSoToKhaiSql(request, uniqueCountParams);
-            Long totalUnique = jdbcTemplate.queryForObject(countUniqueSql, uniqueCountParams.toArray(), Long.class);
+//            // Dùng params RIÊNG biệt
+//            List<Object> uniqueCountParams = new ArrayList<>();
+//            String countUniqueSql = buildCountUniqueSoToKhaiSql(request, uniqueCountParams);
+//            Long totalUnique = jdbcTemplate.queryForObject(countUniqueSql, uniqueCountParams.toArray(), Long.class);
+//
+//            // Lấy danh sách mã số thuế không trùng
+//            String taxCodeField = dupCol.equals("sotk") ? "masothue_Kbhq" : "ma_nguoi_xuat_khau";
+//            List<Object> listFirmParams = new ArrayList<>();
+//            String listFirmSql = buildDistinctListSqlFirm(request, listFirmParams, taxCodeField);
+//            List<Map<String, Object>> taxCodeList = jdbcTemplate.queryForList(listFirmSql, listFirmParams.toArray());
 
-            // Lấy danh sách mã số thuế không trùng
-            String taxCodeField = dupCol.equals("sotk") ? "masothue_Kbhq" : "ma_nguoi_xuat_khau";
-            List<Object> listFirmParams = new ArrayList<>();
-            String listFirmSql = buildDistinctListSqlFirm(request, listFirmParams, taxCodeField);
-            List<Map<String, Object>> taxCodeList = jdbcTemplate.queryForList(listFirmSql, listFirmParams.toArray());
-
-            List<Object> uniqueCountParams2 = new ArrayList<>();
-            String codeVolumTax = dupCol.equals("sotk") ? "tong_Tri_Gia_Tinh_Thue" : "tong_tri_gia_tinh_thue";
-            String countVolumTax = buildSumColumnSql(request, uniqueCountParams2,codeVolumTax);
-            Long totalVolumTax = jdbcTemplate.queryForObject(countVolumTax, uniqueCountParams2.toArray(), Long.class);
+//            List<Object> uniqueCountParams2 = new ArrayList<>();
+//            String codeVolumTax = dupCol.equals("sotk") ? "tong_Tri_Gia_Tinh_Thue" : "tong_tri_gia_tinh_thue";
+//            String countVolumTax = buildSumColumnSql(request, uniqueCountParams2,codeVolumTax);
+//            Long totalVolumTax = jdbcTemplate.queryForObject(countVolumTax, uniqueCountParams2.toArray(), Long.class);
 
             String totalTaxCodeField = dupCol.equals("sotk") ? "masothue_Kbhq" : "ma_nguoi_xuat_khau";
             String totalTaxCodeField2 = dupCol.equals("sotk") ? "tong_Tri_Gia_Tinh_Thue" : "tong_tri_gia_tinh_thue";
 
             List<Object> totallistFirmParams = new ArrayList<>();
-            String totallistFirmSql = buildTopCodeThueByGroupSumColumnSql(request, totallistFirmParams, totalTaxCodeField,totalTaxCodeField2,10,false);
+            String totallistFirmSql = buildTopCodeThueByGroupSumColumnSql(request, totallistFirmParams, totalTaxCodeField,totalTaxCodeField2,top,asc);
             List<Map<String, Object>> top5codethuetotaltaxCodeList = jdbcTemplate.queryForList(totallistFirmSql, totallistFirmParams.toArray());
 
             String maLoaiHinh = dupCol.equals("sotk") ? "malh" : "ma_loai_hinh";
             List<Object> totalmaLoaiHinh = new ArrayList<>();
-            String totalMaLoaiHinhSql = buildTopCodeThueByGroupSumColumnSql(request, totalmaLoaiHinh, maLoaiHinh,totalTaxCodeField2,10,false);
+            String totalMaLoaiHinhSql = buildTopCodeThueByGroupSumColumnSql(request, totalmaLoaiHinh, maLoaiHinh,totalTaxCodeField2,top,asc);
             List<Map<String, Object>> top5totalMaLoaiHinh = jdbcTemplate.queryForList(totalMaLoaiHinhSql, totalmaLoaiHinh.toArray());
 
             String maHScode = dupCol.equals("sotk") ? "hs_Code" : "ma_so_hang_hoa";
             List<Object> totalmaHScode = new ArrayList<>();
-            String totalmaHScodeSql  = buildTopCodeThueByGroupSumColumnSql(request, totalmaHScode, maHScode,totalTaxCodeField2,10,false);
+            String totalmaHScodeSql  = buildTopCodeThueByGroupSumColumnSql(request, totalmaHScode, maHScode,totalTaxCodeField2,top,asc);
             System.out.println(totalmaHScodeSql);
             List<Map<String, Object>> top5totalmaHScode  = jdbcTemplate.queryForList(totalmaHScodeSql, totalmaHScode.toArray());
 
             String maSotk = dupCol.equals("sotk") ? "sotk" : "so_to_khai";
             List<Object> totamaSotk = new ArrayList<>();
-            String totalmaSotkSql  = buildTopCodeThueByGroupSumColumnSql(request, totamaSotk, maSotk,totalTaxCodeField2,10,false);
+            String totalmaSotkSql  = buildTopCodeThueByGroupSumColumnSql(request, totamaSotk, maSotk,totalTaxCodeField2,top,asc);
             List<Map<String, Object>> top5totalmaSotk  = jdbcTemplate.queryForList(totalmaSotkSql, totamaSotk.toArray());
 
 
-            return ResponseEntity.ok(new DynamicQueryResponse(null, 0, totalUnique, taxCodeList,totalVolumTax,top5codethuetotaltaxCodeList,top5totalMaLoaiHinh,top5totalmaHScode,top5totalmaSotk));
+            return ResponseEntity.ok(new DynamicQueryResponse(null, 0, 0, null,0,top5codethuetotaltaxCodeList,top5totalMaLoaiHinh,top5totalmaHScode,top5totalmaSotk));
         }
 
         // Trường hợp không trùng

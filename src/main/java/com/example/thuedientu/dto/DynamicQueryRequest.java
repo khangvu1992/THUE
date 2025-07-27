@@ -18,6 +18,8 @@ public class DynamicQueryRequest {
     private Pagination pagination;
     private boolean removeDuplicate;
     private String duplicateColumn; // getter + setter
+    private Integer top;
+    private Boolean asc;
 // Thêm thuộc tính để lọc trùng tờ khai
 
     @Data
