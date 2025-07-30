@@ -47,7 +47,59 @@ public class DynamicQueryController {
             String taxCodeField = dupCol.equals("sotk") ? "masothue_Kbhq" : "ma_nguoi_xuat_khau";
             List<Object> listFirmParams = new ArrayList<>();
             String listFirmSql = buildDistinctListSqlFirm(request, listFirmParams, taxCodeField);
-            List<Map<String, Object>> taxCodeList = jdbcTemplate.queryForList(listFirmSql, listFirmParams.toArray());
+            String finalSql = "SELECT * FROM doanh_nghiep_trong_diem " +
+                    "WHERE is_trong_diem = 1 AND ma_so_thue IN (" + listFirmSql + ")";
+            List<Map<String, Object>> taxCodeList = jdbcTemplate.queryForList(finalSql, listFirmParams.toArray());
+
+            String taxCodeField3 = dupCol.equals("sotk") ? "masothue_Kbhq" : "ma_nguoi_xuat_khau";
+            List<Object> listFirmParams3 = new ArrayList<>();
+            String listFirmSql3 = buildDistinctListSqlFirm(request, listFirmParams, taxCodeField);
+
+            List<Map<String, Object>> taxCodeListcongty = jdbcTemplate.queryForList(listFirmSql3, listFirmParams.toArray());
+
+
+
+
+            // Lấy danh sách mã số HScode không trùng
+            String taxCodeField2 = dupCol.equals("sotk") ? "hs_Code" : "ma_so_hang_hoa";
+            List<Object> listHScodeParams = new ArrayList<>();
+            String listHScodeSql = buildDistinctListSqlHScode(request, listHScodeParams, taxCodeField2);
+            String finalSqlHsCode = "SELECT * FROM hs_code_trong_diem WHERE ma_hs IN (" + listHScodeSql + ")";
+            List<Map<String, Object>> hSCodeList = jdbcTemplate.queryForList(finalSqlHsCode, listHScodeParams.toArray());
+
+
+
+
+// Bước 1: Xác định tên cột đầu/cuối (cửa khẩu đi/đến)
+            String taxCodeFieldDi = dupCol.equals("sotk") ? "ma_Diadiemxephang" : "ma_dia_diem_xep_hang";
+            String taxCodeFieldDen = dupCol.equals("sotk") ? "ma_Diadiemdohang" : "ma_dia_diem_nhan_hang_cuoi_cung";
+
+// Bước 2: Tạo SQL con lấy danh sách các cặp không trùng
+            List<Object> listTuyenDuongParams = new ArrayList<>();
+            String listTuyenDuongSql = buildDistinctListSqlTuyenDuong(
+                    request, listTuyenDuongParams, taxCodeFieldDi, taxCodeFieldDen
+            );
+
+// Bước 3: SQL chính – SELECT với EXISTS (chuẩn SQL Server)
+            String finalSqlTuyenDuong = """
+    SELECT * FROM tuyen_duong_trong_diem td
+    WHERE EXISTS (
+        SELECT 1 FROM (
+            """ + listTuyenDuongSql + """
+        ) AS temp
+        WHERE temp.cua_khau_di = td.cua_khau_di
+          AND temp.cua_khau_den = td.cua_khau_den
+    )
+""";
+
+// Bước 4: Thực thi truy vấn
+            List<Map<String, Object>> hSCodeListDuong = jdbcTemplate.queryForList(
+                    finalSqlTuyenDuong,
+                    listTuyenDuongParams.toArray()
+            );
+
+
+
 
             List<Object> uniqueCountParams2 = new ArrayList<>();
             String codeVolumTax = dupCol.equals("sotk") ? "tong_Tri_Gia_Tinh_Thue" : "tong_tri_gia_tinh_thue";
@@ -78,11 +130,11 @@ public class DynamicQueryController {
 //            List<Map<String, Object>> top5totalmaSotk  = jdbcTemplate.queryForList(totalmaSotkSql, totamaSotk.toArray());
 
 
-            return ResponseEntity.ok(new DynamicQueryResponse(data, total, totalUnique, taxCodeList,totalVolumTax,null,null,null,null));
+            return ResponseEntity.ok(new DynamicQueryResponse(data, total, totalUnique, taxCodeList,totalVolumTax,null,null,null,null,hSCodeList,taxCodeListcongty,hSCodeListDuong));
         }
 
         // Trường hợp không trùng
-        return ResponseEntity.ok(new DynamicQueryResponse(data, total, 0, null,0,null,null,null,null));
+        return ResponseEntity.ok(new DynamicQueryResponse(data, total, 0, null,0,null,null,null,null,null,null,null));
     }
 
 
@@ -141,11 +193,11 @@ public class DynamicQueryController {
             List<Map<String, Object>> top5totalmaSotk  = jdbcTemplate.queryForList(totalmaSotkSql, totamaSotk.toArray());
 
 
-            return ResponseEntity.ok(new DynamicQueryResponse(null, 0, 0, null,0,top5codethuetotaltaxCodeList,top5totalMaLoaiHinh,top5totalmaHScode,top5totalmaSotk));
+            return ResponseEntity.ok(new DynamicQueryResponse(null, 0, 0, null,0,top5codethuetotaltaxCodeList,top5totalMaLoaiHinh,top5totalmaHScode,top5totalmaSotk,null,null,null));
         }
 
         // Trường hợp không trùng
-        return ResponseEntity.ok(new DynamicQueryResponse(null, 0, 0, null,0,null,null,null,null));
+        return ResponseEntity.ok(new DynamicQueryResponse(null, 0, 0, null,0,null,null,null,null,null,null,null));
     }
 
 
@@ -244,6 +296,51 @@ public class DynamicQueryController {
 
         return sql.toString();
     }
+
+    private String buildDistinctListSqlHScode(DynamicQueryRequest req, List<Object> params, String name) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("SELECT DISTINCT ").append(name)
+                .append(" FROM ").append(req.getNameTable())
+                .append(" WHERE 1=1");
+
+        // Thêm điều kiện lọc nếu có
+        appendWhereClause(sql, req.getFiltered(), params);
+
+        // Xử lý loại bỏ trùng lặp theo dupCol nếu được bật
+        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
+            String col = req.getDuplicateColumn();
+            sql.append(" AND ").append(col).append(" IN (")
+                    .append("SELECT MAX(").append(col).append(") FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
+        }
+
+        return sql.toString();
+    }
+
+    private String buildDistinctListSqlTuyenDuong(DynamicQueryRequest req, List<Object> params, String diemDauCol, String diemCuoiCol) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("SELECT DISTINCT ")
+                .append(diemDauCol).append(" AS cua_khau_di, ")
+                .append(diemCuoiCol).append(" AS cua_khau_den ")
+                .append("FROM ").append(req.getNameTable())
+                .append(" WHERE 1=1");
+
+        appendWhereClause(sql, req.getFiltered(), params);
+
+        if (req.isRemoveDuplicate() && req.getDuplicateColumn() != null && !req.getDuplicateColumn().isBlank()) {
+            String col = req.getDuplicateColumn();
+            sql.append(" AND ").append(col).append(" IN (")
+                    .append("SELECT MAX(").append(col).append(") FROM ")
+                    .append(req.getNameTable())
+                    .append(" GROUP BY LEFT(").append(col).append(", 11))");
+        }
+
+        return sql.toString();
+    }
+
 
     private String buildSumColumnSql(DynamicQueryRequest req, List<Object> params, String name) {
         StringBuilder sql = new StringBuilder();

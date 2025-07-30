@@ -20,6 +20,16 @@ public class DynamicQueryResponse {
     private List<Map<String, Object>>   top5totalMaLoaiHinh;
     private List<Map<String, Object>>   top5totalmaHScode;
     private List<Map<String, Object>>   top5totalmaSotk;
+    private List<Map<String, Object>>   listHScode;
+    private List<Map<String, Object>>   taxCodeListcongty;
+    private List<Map<String, Object>>   hSCodeListDuong;
+
+
+
+
+
+
+
 
 
 
